@@ -1,103 +1,94 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <sys/time.h>
-#include <pthread.h>
+//=========================================================================
+// multiMag.c
+// 
+// An interface for the RM3100 3-axis magnetometer from PNI Sensor Corp.
+// Derived in part from several sources:
+//
+//    PSWS_FileNameRequirementsV0_13.pdf
+//      2020-07-15 UTC
+//      Author: J C Gibbons
+// 
+// Author:      David M. Witten II, KD0EAG
+// Date:        Jan 30, 2021
+// License:     GPL 3.0
+//=========================================================================
+#include "main.h"
 
-#define NOTHREADS 100
-//#define _POSIX_PRIORITY_SCHEDULING 1
-#define UTCBUFLEN           64
+int gflag = 1;
+
+// variables to hold metadata read from files
+char cityState[MAXPATHBUFLEN] = "";
+char callSign[MAXPATHBUFLEN] = "";
+char latLonElv[MAXPATHBUFLEN] = "";
+char freqStd[MAXPATHBUFLEN] = "";
+char nodeNum[MAXPATHBUFLEN] = "";
+char sysTem[MAXPATHBUFLEN];
+char metadata[MAXPATHBUFLEN];
+char dataTyp[MAXPATHBUFLEN];
+char gridSqr[GRIDSQRLEN];
+char rollOverTime[UTCBUFLEN]        = "00:00";
+char sitePrefix[SITEPREFIXLEN]      = "SITEPREFIX";
+
+char outFilePath[MAXPATHBUFLEN];
+char outFileName[MAXPATHBUFLEN];
+
+////------------------------------------------
+//// currentTimeMillis()
+////------------------------------------------
+//long currentTimeMillis()
+//{
+//    struct timeval time;
+//    gettimeofday(&time, NULL);
+//    return time.tv_sec * 1000 + time.tv_usec / 1000;
+//}
+//
+////------------------------------------------
+//// getUTC()
+////------------------------------------------
+//struct tm *getUTC()
+//{
+//    time_t now = time(&now);
+//    if (now == -1)
+//    {
+//        puts("The time() function failed");
+//    }
+//    struct tm *ptm = gmtime(&now);
+//    if (ptm == NULL)
+//    {
+//        puts("The gmtime() function failed");
+//    }    
+//    return ptm;
+//}
 
 //------------------------------------------
-// types
+// i2cReader()
 //------------------------------------------
-typedef struct tag_pList
+void *i2cReader(void *thread_id)
 {
-    int numThreads;
-} pList;
-
-//------------------------------------------
-// prototypes
-//------------------------------------------
-void * fun1(void *thread_id);
-void * fun2(void *thread_id);
-int main(int argc, char** argv);
-int getCommandLine(int argc, char** argv, pList *p);
-long currentTimeMillis();
-struct tm *getUTC();
-
-//------------------------------------------
-// currentTimeMillis()
-//------------------------------------------
-long currentTimeMillis()
-{
-    struct timeval time;
-    gettimeofday(&time, NULL);
-    return time.tv_sec * 1000 + time.tv_usec / 1000;
-}
-
-//------------------------------------------
-// getUTC()
-//------------------------------------------
-struct tm *getUTC()
-{
-    time_t now = time(&now);
-    if (now == -1)
-    {
-        puts("The time() function failed");
-    }
-    struct tm *ptm = gmtime(&now);
-    if (ptm == NULL)
-    {
-        puts("The gmtime() function failed");
-    }    
-    return ptm;
-}
-
-//------------------------------------------
-// fun1()
-//------------------------------------------
-void * fun1(void *thread_id)
-{
-    int i;
     int *id = (int *) thread_id;
     char utcStr[UTCBUFLEN] = "";
-    int currentDay = 0;
     struct tm *utcTime = getUTC();
-
+    
+    //while(gflag == 1)
+    //{
+    //    usleep(10);                   
+    //}
     while(1) 
     {
         // usleep(1000 * 1000 * 60);    // 1 minute
-        // printf("1 minute \n");
         usleep(1000 * 1000);                   // 1 second
+#if(0)        
         utcTime = getUTC();
-        strftime(utcStr, UTCBUFLEN, "%d %b %Y %T", utcTime);                
-//        fprintf(outfp, "\"%s\"", utcStr);
+        strftime(utcStr, UTCBUFLEN, "%d %b %Y %T", utcTime);
         printf("Task %u: 1 second %s\n", *id, utcStr);
+#else        
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+//        printf("Task %u: 1 second %lu\n", *id, tv.tv_sec * 1000000 + tv.tv_usec);
+        printf("Task %u: s: %lu, us: %lu\n", *id, tv.tv_sec, tv.tv_usec);
+#endif        
   //      sched_yield();
-    }
-    pthread_exit(NULL);
-}
-
-//------------------------------------------
-// fun2()
-//------------------------------------------
-void * fun2(void *thread_id)
-{
-    int i;
-    int *id = (int *) thread_id;
-
-    while(1) 
-    {
-        // usleep(2000 * 1000 * 60);
-        // printf("2 minute \n");
-        usleep(1000 * 1000);                   // 1 second
-        printf("Task B: 1 second \n");
-        sched_yield();
+  //      clock_nanosleep()
     }
     pthread_exit(NULL);
 }
@@ -111,20 +102,18 @@ int getCommandLine(int argc, char** argv, pList *p)
 {
     int c;
 
-    p->numThreads = 2;
-    
-    if(p != NULL)
-    {
-        memset(p, 0, sizeof(pList));
-    }
     while((c = getopt(argc, argv, "?hn:")) != -1)
     {
         //int this_option_optind = optind ? optind : 1;
         switch (c)
         {
             case 'n':
-                // fprintf(stdout, "\nThe -A option is intended to allow setting a value in the NOS register.\n\n");
                 p->numThreads = atoi(optarg);
+                if(p->numThreads > MAXTHREADS)
+                {
+                    fprintf(stdout, "Number of IO threads must be <= %u.", MAXTHREADS);
+                    exit(1);
+                }
                 break;
             case 'h':
             case '?':
@@ -175,34 +164,42 @@ int openLogs(pList *p)
 //------------------------------------------
 int main(int argc, char** argv)
 {
-    pthread_t tids[NOTHREADS];
-    int ids[NOTHREADS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    //pthread_t tids[]  //[NOTHREADS];
-    //int ids[];        //[NOTHREADS] = {1, 2};
-    
-    //long t;
+    pthread_t tids[MAXTHREADS];
+    int ids[MAXTHREADS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     int i;
     pList p;
     int rv = 0;
-    //FILE *outfp = stdout;
+
+    // Set default parameters
+    //if(p != NULL)
+    //{
+    //    memset(&p, 0, sizeof(pList));
+    //}
+    p.numThreads = 2;
 
     getCommandLine(argc, argv, &p);
-    readConfig(p)
-    openLogs(p)
+    readConfig(&p);
+    openLogs(&p);
     for(i = 0; i < p.numThreads; i++) 
     {
-        printf("Creating fun1 thread %u\n", i);
-        rv = pthread_create(&tids[i], NULL, fun1, &ids[i]);
+        printf("Creating i2cReader thread %u\n", i);
+        rv = pthread_create(&tids[i], NULL, i2cReader, &ids[i]);
         if(rv) 
         {
             printf("unable to create thread! \n");
             exit(-1);
         }
     }
-    for(i = 0 ; i < p.numThreads; i++) 
+    gflag = 1;
+    for(i = 0; i < p.numThreads; i++) 
     {
         pthread_join(tids[i], NULL);
     }
+    printf("Waiting...\n", i);
+    usleep(1000000);
+    printf("gflag = 0 ...\n", i);
+    gflag = 0;
+    printf("pthread_exit(NULL)\n", i);
     pthread_exit(NULL);     
     return 0;
 }

@@ -9,13 +9,12 @@ CC = gcc
 LD = gcc
 GPERF = gperf
 CXX = g++
-#DEPS = main.h MCP9808.h device_defs.h i2c.h runMag.h cmdmgr.h config.gperf cfghash.c  
-#DEPS = main.h MCP9808.h device_defs.h i2c.h runMag.h cmdmgr.h uthash/uthash.h analysis.h
-DEPS = 
-#SRCS = main.c runMag.c i2c.c cmdmgr.c cfghash.c
-SRCS = multiMag.c
+#DEPS = main.h MCP9808.h device_defs.h i2c.h multiMag.h cmdmgr.h config.gperf cfghash.c  
+#DEPS = main.h MCP9808.h device_defs.h i2c.h multiMag.h cmdmgr.h uthash/uthash.h analysis.h
+DEPS = main.h logFiles.h mcp9808.h rm3100.h
+#SRCS = main.c multiMag.c i2c.c cmdmgr.c cfghash.c
+SRCS = multiMag.c logFiles.c
 OBJS = $(subst .c,.o,$(SRCS))
-#DOBJS = main.o runMag.o i2c.o cmdmgr.o cfghash.o 
 DOBJS = multiMag.o
 LIBS = -lm
 DEBUG = -g -Wall
@@ -24,7 +23,8 @@ LDFLAGS =
 TARGET_ARCH =
 LOADLIBES =
 LDLIBS =
-GPERFFLAGS = --language=ANSI-C 
+GPERFFLAGS = --language=ANSI-C
+PTHREAD = -pthread
 
 TARGET = multiMag
 
@@ -32,45 +32,27 @@ RM = rm -f
 
 all: release
 
+#@echo $(TARGET)
+#@echo $(SRCS)
+#@echo $(OBJS)
+#@echo $(DEPS)
+
 #cfghash.c: config.gperf
 #	$(GPERF) $(GPERFFLAGS) config.gperf > cfghash.c
 
-# debug: runMag.c cfghash.c $(DEPS) 
-debug: multiMag.c $(DEPS) 
-	$(CC) -c $(DEBUG) $(SRCS)
-#	$(CC) -c $(DEBUG) multiMag.c  
-#	$(CC) -c $(DEBUG) cmdmgr.c  
-#	$(CC) -c $(DEBUG) i2c.c
-#	$(CC) -c $(DEBUG) jsonLogOutput.c
-#	$(CC) -c $(DEBUG) csvLogOutput.c
-#	$(CC) -c $(DEBUG) grapeLogOutput.c
-#	$(CC) -c $(DEBUG) analysis.c
-#	$(CC) -c $(DEBUG) cfghash.c
-#	$(CC) -o $(TARGET) $(DEBUG) main.c runMag.o i2c.o cmdmgr.o cfghash.o $(LIBS)
-#	$(CC) -o $(TARGET) $(DEBUG) main.c runMag.o i2c.o cmdmgr.o $(LIBS)
-#	$(CC) -o $(TARGET) $(DEBUG) main.c runMag.o i2c.o cmdmgr.o jsonLogOutput.o csvLogOutput.o grapeLogOutput.o analysis.o $(LIBS)
-#	$(CC) -o $(TARGET) $(DEBUG) main.c runMag.o i2c.o cmdmgr.o jsonLogOutput.o csvLogOutput.o grapeLogOutput.o $(LIBS)
-	$(CC) -o $(TARGET) $(DEBUG) multiMag.c $(LIBS)
+debug: $(TARGET) $(DEPS) $(OBJS)
+	$(CC) -c $(DEBUG) $(PTHREAD) multiMag.c  
+	$(CC) -o $(TARGET) $(PTHREAD) $(DEBUG) multiMag.c $(LIBS)
 
-#release: runMag.c cfghash.c $(DEPS)
-release: runMag.c $(DEPS)
-	$(CC) -c $(DEBUG) $(SRCS)
-#	$(CC) -c $(CFLAGS) multiMag.c
-#	$(CC) -c $(CFLAGS) cmdmgr.c
-#	$(CC) -c $(CFLAGS) i2c.c  
-#	$(CC) -c $(CFLAGS) jsonLogOutput.c
-#	$(CC) -c $(CFLAGS) csvLogOutput.c
-#	$(CC) -c $(CFLAGS) grapeLogOutput.c
-#	$(CC) -c $(CFLAGS) analysis.c
-#	$(CC) -c $(CFLAGS) cfghash.c
-#	$(CC) -o $(TARGET) $(CFLAGS) main.c runMag.o i2c.o cmdmgr.o cfghash.o $(LIBS)
-#	$(CC) -o $(TARGET) $(CFLAGS) main.c runMag.o i2c.o cmdmgr.o $(LIBS)
-#	$(CC) -o $(TARGET) $(CFLAGS) main.c runMag.o i2c.o cmdmgr.o jsonLogOutput.o csvLogOutput.o grapeLogOutput.o analysis.o $(LIBS)
-#	$(CC) -o $(TARGET) $(CFLAGS) main.c runMag.o i2c.o cmdmgr.o jsonLogOutput.o csvLogOutput.o grapeLogOutput.o $(LIBS)
-	$(CC) -o $(TARGET) $(CFLAGS) $(SRCS) $(LIBS)
+#release: $(TARGET) $(SRCS) $(OBJS) $(DEPS)
+
+release: $(OBJS)
+	$(CC) -o $(TARGET) $(PTHREAD) $(CFLAGS) $(OBJS) $(LIBS)
+    
+multiMag.o : multiMag.c
+	$(CC) -c $(CFLAGS) $(PTHREAD) multiMag.c
 
 clean:
-#	$(RM) $(OBJS) $(TARGET) cfghash.c config.json
 	$(RM) $(OBJS) $(TARGET) config.json
 
 distclean: clean
