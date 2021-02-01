@@ -28,10 +28,14 @@
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <pthread.h>
+#include "rm3100.h"
+#include "mcp9808.h"
+//#include "logFiles.h"
+#include "utilRoutines.h"
 
 #define MAXTHREADS          10
 #define UTCBUFLEN           64
-#define MAXPATHBUFLEN       2048
+#define MAXPATHBUFLEN       1500
 #define SITEPREFIXLEN       32
 #define GRIDSQRLEN          7
 
@@ -43,6 +47,7 @@ typedef struct tag_pList
     int i2cBusNumber;
     int i2c_fd;
     int numThreads;
+    int modeOutputFlag;
     char *outputFilePath;
     char *outputFileName;
     char *gridSqr;
@@ -55,8 +60,5 @@ typedef struct tag_pList
 int main(int argc, char** argv);
 void *i2cReader(void *thread_id);
 int getCommandLine(int argc, char** argv, pList *p);
-long currentTimeMillis();
-struct tm *getUTC();
-
 
 #endif  // MULTIMAGMAIN_h

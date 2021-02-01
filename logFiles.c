@@ -7,10 +7,9 @@
 // Date:        Jan 31, 2021
 // License:     GPL 3.0
 //=========================================================================
-#include "main.h"
+#include "logFiles.h"
 //#include "jsmn/jsmn.h"
 //#include "uthash/uthash.h"
-#include "logFiles.h"
 
 extern char cityState[MAXPATHBUFLEN];
 extern char callSign[MAXPATHBUFLEN];
@@ -42,110 +41,33 @@ const char *fdata[][3] =
 };
 
 //------------------------------------------
-// currentTimeMillis()
-//------------------------------------------
-long currentTimeMillis()
-{
-    struct timeval time;
-    gettimeofday(&time, NULL);
-    return time.tv_sec * 1000 + time.tv_usec / 1000;
-}
-
-//------------------------------------------
-// getUTC()
-//------------------------------------------
-struct tm *getUTC()
-{
-    time_t now = time(&now);
-    if (now == -1)
-    {
-        puts("The time() function failed");
-    }
-    struct tm *ptm = gmtime(&now);
-    if (ptm == NULL)
-    {
-        puts("The gmtime() function failed");
-    }    
-    return ptm;
-}
-
-//------------------------------------------
-// mkdir_p()
-// 
-// Recursively create path.
-//     return -1 if fail.
-//------------------------------------------
-int mkdir_p(const char *path)
-{
-    const size_t len = strlen(path);
-    char _path[MAXPATHBUFLEN];
-    char *p; 
-
-    errno = 0;
-
-    /* Copy string so its mutable */
-    if (len > sizeof(_path)-1)
-    {
-        errno = ENAMETOOLONG;
-        return -1; 
-    }   
-    strcpy(_path, path);
-    /* Iterate the string */
-    for (p = _path + 1; *p; p++)
-    {
-        if (*p == '/')
-        {
-            /* Temporarily truncate */
-            *p = '\0';
-            if (mkdir(_path, S_IRWXU) != 0)
-            {
-                if (errno != EEXIST)
-                {
-                    return -1; 
-                }
-            }
-            *p = '/';
-        }
-    }   
-    if (mkdir(_path, S_IRWXU) != 0)
-    {
-        if (errno != EEXIST)
-        {
-            return -1; 
-        }
-//printf("Create path: [%s]\n", _path);    
-    }   
-    return 0;
-}
-
-//------------------------------------------
 // logHeader()
 // show settings in use (-P)
 //------------------------------------------
 char *logHeader(int argc, char **argv, pList *p)
 {
-    //char outLine[1024] = "";
-    //char outStr[4096] = "";
+    char outLine[1024] = "";
+    char outStr[4096] = "";
     //char pathStr[128] = "";
     snprintf(outFileName, sizeof(outFileName), "/dev/i2c-%i", p->i2cBusNumber);
     
-    //strncat(outStr, "\n", strlen("\n")+1);
-    //snprintf(outLine, 1023, "#=================================================================\n");
-    //strncat(outStr, outLine, strlen(outLine));
-    //snprintf(outLine, 1023, "#\n# Current Parameters:\n");
-    //strncat(outStr, outLine, strlen(outLine));
-    //snprintf(outLine, 1023, "# \n");
-    //strncat(outStr, outLine, strlen(outLine));
-    //snprintf(outLine, 1023, "#   Command line:                     ");
-    //strncat(outStr, outLine, strlen(outLine));
-    //snprintf(outLine, 1023, " %s ",  argv[0]); 
-    //strncat(outStr,  outLine, strlen(outLine));
-    //for(int i = 1; i < argc; i++)
-    //{
-    //    snprintf(outLine,1023, " %s", argv[i]); 
-    //    strncat(outStr, outLine, strlen(outLine));
-    //}
-    //snprintf(outLine, 1023, "\n");
+    strncat(outStr, "\n", strlen("\n")+1);
+    snprintf(outLine, 1023, "#=================================================================\n");
+    strncat(outStr, outLine, strlen(outLine));
+    snprintf(outLine, 1023, "#\n# Current Parameters:\n");
+    strncat(outStr, outLine, strlen(outLine));
+    snprintf(outLine, 1023, "# \n");
+    strncat(outStr, outLine, strlen(outLine));
+    snprintf(outLine, 1023, "#   Command line:                     ");
+    strncat(outStr, outLine, strlen(outLine));
+    snprintf(outLine, 1023, " %s ",  argv[0]); 
+    strncat(outStr,  outLine, strlen(outLine));
+    for(int i = 1; i < argc; i++)
+    {
+        snprintf(outLine,1023, " %s", argv[i]); 
+        strncat(outStr, outLine, strlen(outLine));
+    }
+    snprintf(outLine, 1023, "\n");
     //if(!p->magRevId)
     //{
     //    getMagRev(p);
@@ -221,6 +143,51 @@ char *logHeader(int argc, char **argv, pList *p)
 }
 
 //------------------------------------------
+// readConfig()
+//------------------------------------------
+int readConfig(pList *p)
+{
+    int rv = 0;
+    return rv;
+}
+
+//------------------------------------------
+// openLogs()
+//------------------------------------------
+int openLogs(pList *p)
+{
+    int rv = 0;
+    return rv;
+}
+
+//------------------------------------------
+// setupDefaults()
+//------------------------------------------
+int setupDefaults(pList *p)
+{
+    int rv = 0;
+    
+    if(p != NULL)
+    {
+        memset(&p, 0, sizeof(pList));
+
+        p->numThreads       = 2;
+        p->i2cBusNumber     = 1;
+        p->i2c_fd           = 0;
+        p->modeOutputFlag   = 0;
+        p->outputFilePath   = NULL;
+        p->outputFileName   = NULL;
+        p->gridSqr          = NULL;
+        p->sitePrefix       = NULL;
+    }
+    else
+    {
+        rv = 1;
+    }      
+    return rv;
+}
+
+//------------------------------------------
 //  createGRAPEfilename()
 //------------------------------------------
 void createOutputfilename(pList *p)
@@ -236,7 +203,7 @@ void createOutputfilename(pList *p)
     strncat((char *)outFileName, p->gridSqr, 7);
     strncat((char *)outFileName, "_MGT.csv", 9);
     p->outputFileName = outFileName;
-    printf("createGRAPEfilename(): [%s][%s]\n", p->outputFilePath, p->outputFileName);
+    printf("createOutputfilename(): [%s][%s]\n", p->outputFilePath, p->outputFileName);
     fflush(stdout);
 }
 
@@ -255,15 +222,15 @@ int buildOutputFilePath(pList *p)
     //strncat(analysisDir, "/PSWS/Srawdata", MAXPATHBUFLEN - 1);
     //p->outputFilePath = analysisDir;
     p->outputFilePath = outFilePath;
-printf("buildGRAPEFilePath(): [%s]\n", p->outputFilePath);
+printf("buildOutputFilePath(): [%s]\n", p->outputFilePath);
 fflush(stdout);
     return rv;
 }
 
 //------------------------------------------
-// setOutputFilePath()
+// setOutputFileRoot()
 //------------------------------------------
-int setOutputFilePath(pList *p, char *outPath)
+int setOutputFileRoot(pList *p, char *outPath)
 {
     int rv = 0;
     

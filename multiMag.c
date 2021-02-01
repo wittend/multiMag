@@ -13,6 +13,7 @@
 // License:     GPL 3.0
 //=========================================================================
 #include "main.h"
+#include "logFiles.h"
 
 int gflag = 1;
 
@@ -32,38 +33,10 @@ char sitePrefix[SITEPREFIXLEN]      = "SITEPREFIX";
 char outFilePath[MAXPATHBUFLEN];
 char outFileName[MAXPATHBUFLEN];
 
-////------------------------------------------
-//// currentTimeMillis()
-////------------------------------------------
-//long currentTimeMillis()
-//{
-//    struct timeval time;
-//    gettimeofday(&time, NULL);
-//    return time.tv_sec * 1000 + time.tv_usec / 1000;
-//}
-//
-////------------------------------------------
-//// getUTC()
-////------------------------------------------
-//struct tm *getUTC()
-//{
-//    time_t now = time(&now);
-//    if (now == -1)
-//    {
-//        puts("The time() function failed");
-//    }
-//    struct tm *ptm = gmtime(&now);
-//    if (ptm == NULL)
-//    {
-//        puts("The gmtime() function failed");
-//    }    
-//    return ptm;
-//}
-
 //------------------------------------------
 // i2cReader()
 //------------------------------------------
-void *i2cReader(void *thread_id)
+void *i2cReaderThread(void *thread_id)
 {
     int *id = (int *) thread_id;
     char utcStr[UTCBUFLEN] = "";
@@ -141,24 +114,6 @@ int getCommandLine(int argc, char** argv, pList *p)
 }
  
 //------------------------------------------
-// readConfig()
-//------------------------------------------
-int readConfig(pList *p)
-{
-    int rv = 0;
-    return rv;
-}
-
-//------------------------------------------
-// openLogs()
-//------------------------------------------
-int openLogs(pList *p)
-{
-    int rv = 0;
-    return rv;
-}
-
-//------------------------------------------
 // main()
 // 
 //------------------------------------------
@@ -171,19 +126,28 @@ int main(int argc, char** argv)
     int rv = 0;
 
     // Set default parameters
-    //if(p != NULL)
-    //{
-    //    memset(&p, 0, sizeof(pList));
-    //}
-    p.numThreads = 2;
+    setupDefaults(&p);
 
     getCommandLine(argc, argv, &p);
     readConfig(&p);
+
+    buildOutputFilePath(&p);
+    createOutputfilename(&p);
+
     openLogs(&p);
+
+    switch(p.modeOutputFlag)
+    {
+        case 0:
+            break;
+        default:
+            break;
+    }
+    
     for(i = 0; i < p.numThreads; i++) 
     {
         printf("Creating i2cReader thread %u\n", i);
-        rv = pthread_create(&tids[i], NULL, i2cReader, &ids[i]);
+        rv = pthread_create(&tids[i], NULL, i2cReaderThread, &ids[i]);
         if(rv) 
         {
             printf("unable to create thread! \n");

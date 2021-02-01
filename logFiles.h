@@ -10,4 +10,14 @@
 #ifndef LOGFILES_h
 #define LOGFILES_h
 
+#include "main.h"
+
+char *logHeader(int argc, char **argv, pList *p);
+int readConfig(pList *p);
+int openLogs(pList *p);
+int setupDefaults(pList *p);
+void createOutputfilename(pList *p);
+int buildOutputFilePath(pList *p);
+int setOutputFileRoot(pList *p, char *outPath);
+
 #endif  // LOGFILES_h

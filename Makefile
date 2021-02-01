@@ -11,11 +11,11 @@ GPERF = gperf
 CXX = g++
 #DEPS = main.h MCP9808.h device_defs.h i2c.h multiMag.h cmdmgr.h config.gperf cfghash.c  
 #DEPS = main.h MCP9808.h device_defs.h i2c.h multiMag.h cmdmgr.h uthash/uthash.h analysis.h
-DEPS = main.h logFiles.h mcp9808.h rm3100.h
+DEPS = main.h logFiles.h mcp9808.h rm3100.h utilRoutines.h
 #SRCS = main.c multiMag.c i2c.c cmdmgr.c cfghash.c
-SRCS = multiMag.c logFiles.c
+SRCS = multiMag.c logFiles.c utilRoutines.c
 OBJS = $(subst .c,.o,$(SRCS))
-DOBJS = multiMag.o
+DOBJS = multiMag.o logFiles.o utilRoutines.o
 LIBS = -lm
 DEBUG = -g -Wall
 CFLAGS = -I.
@@ -40,9 +40,11 @@ all: release
 #cfghash.c: config.gperf
 #	$(GPERF) $(GPERFFLAGS) config.gperf > cfghash.c
 
-debug: $(TARGET) $(DEPS) $(OBJS)
-	$(CC) -c $(DEBUG) $(PTHREAD) multiMag.c  
-	$(CC) -o $(TARGET) $(PTHREAD) $(DEBUG) multiMag.c $(LIBS)
+#debug: $(TARGET) $(DEPS) $(OBJS)
+debug: $(OBJS)
+	$(CC) -o $(TARGET) $(DEBUG) $(PTHREAD) $(CFLAGS) $(OBJS) $(LIBS)
+#	$(CC) -c $(DEBUG) $(PTHREAD) multiMag.c  
+#	$(CC) -o $(TARGET) $(PTHREAD) $(DEBUG) multiMag.c $(LIBS)
 
 #release: $(TARGET) $(SRCS) $(OBJS) $(DEPS)
 
