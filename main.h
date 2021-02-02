@@ -48,6 +48,7 @@ typedef struct tag_pList
     int i2c_fd;
     int numThreads;
     int modeOutputFlag;
+    char *baseFilePath;
     char *outputFilePath;
     char *outputFileName;
     char *gridSqr;

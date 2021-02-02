@@ -21,8 +21,10 @@ extern char metadata[MAXPATHBUFLEN];
 extern char dataTyp[MAXPATHBUFLEN];
 extern char gridSqr[GRIDSQRLEN];
 extern char rollOverTime[UTCBUFLEN];
+
 extern char sitePrefix[SITEPREFIXLEN];
 
+extern char baseFilePath[MAXPATHBUFLEN];
 extern char outFilePath[MAXPATHBUFLEN];
 extern char outFileName[MAXPATHBUFLEN];
 
@@ -169,7 +171,7 @@ int setupDefaults(pList *p)
     
     if(p != NULL)
     {
-        memset(&p, 0, sizeof(pList));
+        memset(p, 0, sizeof(pList));
 
         p->numThreads       = 2;
         p->i2cBusNumber     = 1;
@@ -214,15 +216,15 @@ int buildOutputFilePath(pList *p)
 {
     int rv = 0;
     char *penv = getenv("HOME");
-    strncpy(outFilePath, "", 1);
+    strncpy(baseFilePath, "", 1);
     //strncpy(analysisDir, penv, MAXPATHBUFLEN - 1);
-    //strncpy(outFilePath, penv, MAXPATHBUFLEN - 1);
-    p->outputFileName = outFilePath;
-    //strncat(PSWSBasePath, "/PSWS/", MAXPATHBUFLEN - 1);
+    strncpy(baseFilePath, penv, MAXPATHBUFLEN - 1);
+    //p->outputFileName = baseFilePath;
+    strncat(baseFilePath, "/PSWS/", MAXPATHBUFLEN - 1);
     //strncat(analysisDir, "/PSWS/Srawdata", MAXPATHBUFLEN - 1);
     //p->outputFilePath = analysisDir;
-    p->outputFilePath = outFilePath;
-printf("buildOutputFilePath(): [%s]\n", p->outputFilePath);
+    p->baseFilePath = baseFilePath;
+printf("buildOutputFilePath(): [%s]\n", p->baseFilePath);
 fflush(stdout);
     return rv;
 }

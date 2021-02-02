@@ -30,8 +30,9 @@ char gridSqr[GRIDSQRLEN];
 char rollOverTime[UTCBUFLEN]        = "00:00";
 char sitePrefix[SITEPREFIXLEN]      = "SITEPREFIX";
 
-char outFilePath[MAXPATHBUFLEN];
-char outFileName[MAXPATHBUFLEN];
+char baseFilePath[MAXPATHBUFLEN] = "";
+char outFilePath[MAXPATHBUFLEN] = "";
+char outFileName[MAXPATHBUFLEN] = "";
 
 //------------------------------------------
 // i2cReader()
@@ -130,6 +131,8 @@ int main(int argc, char** argv)
 
     getCommandLine(argc, argv, &p);
     readConfig(&p);
+
+//exit(0);
 
     buildOutputFilePath(&p);
     createOutputfilename(&p);
