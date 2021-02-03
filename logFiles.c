@@ -24,6 +24,7 @@ extern char rollOverTime[UTCBUFLEN];
 
 extern char sitePrefix[SITEPREFIXLEN];
 
+extern char baseFileFolder[FOLDERNAMELEN];
 extern char baseFilePath[MAXPATHBUFLEN];
 extern char outFilePath[MAXPATHBUFLEN];
 extern char outFileName[MAXPATHBUFLEN];
@@ -179,8 +180,9 @@ int setupDefaults(pList *p)
         p->modeOutputFlag   = 0;
         p->outputFilePath   = NULL;
         p->outputFileName   = NULL;
-        p->gridSqr          = NULL;
-        p->sitePrefix       = NULL;
+        p->gridSqr          = gridSqr;
+        p->sitePrefix       = sitePrefix;
+
     }
     else
     {
@@ -190,9 +192,9 @@ int setupDefaults(pList *p)
 }
 
 //------------------------------------------
-//  createGRAPEfilename()
+//  buildOutputfileName()
 //------------------------------------------
-void createOutputfilename(pList *p)
+void buildOutputfileName(pList *p)
 {
     struct tm *utcTime = getUTC();
     char utcStr[UTCBUFLEN] = "";
@@ -205,8 +207,8 @@ void createOutputfilename(pList *p)
     strncat((char *)outFileName, p->gridSqr, 7);
     strncat((char *)outFileName, "_MGT.csv", 9);
     p->outputFileName = outFileName;
-    printf("createOutputfilename(): [%s][%s]\n", p->outputFilePath, p->outputFileName);
-    fflush(stdout);
+printf("buildOutputfileName(): [%s][%s]\n", p->baseFilePath, p->outputFileName);
+fflush(stdout);
 }
 
 //------------------------------------------
@@ -217,12 +219,8 @@ int buildOutputFilePath(pList *p)
     int rv = 0;
     char *penv = getenv("HOME");
     strncpy(baseFilePath, "", 1);
-    //strncpy(analysisDir, penv, MAXPATHBUFLEN - 1);
     strncpy(baseFilePath, penv, MAXPATHBUFLEN - 1);
-    //p->outputFileName = baseFilePath;
-    strncat(baseFilePath, "/PSWS/", MAXPATHBUFLEN - 1);
-    //strncat(analysisDir, "/PSWS/Srawdata", MAXPATHBUFLEN - 1);
-    //p->outputFilePath = analysisDir;
+    strncat(baseFilePath, baseFileFolder, FOLDERNAMELEN - 1);
     p->baseFilePath = baseFilePath;
 printf("buildOutputFilePath(): [%s]\n", p->baseFilePath);
 fflush(stdout);

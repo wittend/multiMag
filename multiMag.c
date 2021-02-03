@@ -18,21 +18,22 @@
 int gflag = 1;
 
 // variables to hold metadata read from files
-char cityState[MAXPATHBUFLEN] = "";
-char callSign[MAXPATHBUFLEN] = "";
-char latLonElv[MAXPATHBUFLEN] = "";
-char freqStd[MAXPATHBUFLEN] = "";
-char nodeNum[MAXPATHBUFLEN] = "";
+char cityState[MAXPATHBUFLEN]       = "";
+char callSign[MAXPATHBUFLEN]        = "";
+char latLonElv[MAXPATHBUFLEN]       = "";
+char freqStd[MAXPATHBUFLEN]         = "";
+char nodeNum[MAXPATHBUFLEN]         = "";
 char sysTem[MAXPATHBUFLEN];
 char metadata[MAXPATHBUFLEN];
 char dataTyp[MAXPATHBUFLEN];
-char gridSqr[GRIDSQRLEN];
 char rollOverTime[UTCBUFLEN]        = "00:00";
 char sitePrefix[SITEPREFIXLEN]      = "SITEPREFIX";
+char gridSqr[GRIDSQRLEN]            = "EM38uw";     //"XXyyzz";
 
-char baseFilePath[MAXPATHBUFLEN] = "";
-char outFilePath[MAXPATHBUFLEN] = "";
-char outFileName[MAXPATHBUFLEN] = "";
+char baseFileFolder[FOLDERNAMELEN]  = "/PSWS";
+char baseFilePath[MAXPATHBUFLEN]    = "";
+char outFilePath[MAXPATHBUFLEN]     = "";
+char outFileName[MAXPATHBUFLEN]     = "";
 
 //------------------------------------------
 // i2cReader()
@@ -50,17 +51,13 @@ void *i2cReaderThread(void *thread_id)
     while(1) 
     {
         // usleep(1000 * 1000 * 60);    // 1 minute
-        usleep(1000 * 1000);                   // 1 second
-#if(0)        
-        utcTime = getUTC();
-        strftime(utcStr, UTCBUFLEN, "%d %b %Y %T", utcTime);
-        printf("Task %u: 1 second %s\n", *id, utcStr);
-#else        
+        //usleep(1000 * 1000);                   // 1 second
+        //utcTime = getUTC();
+        //strftime(utcStr, UTCBUFLEN, "%d %b %Y %T", utcTime);
+        //printf("Task %u: 1 second %s\n", *id, utcStr);
         struct timeval tv;
         gettimeofday(&tv, NULL);
-//        printf("Task %u: 1 second %lu\n", *id, tv.tv_sec * 1000000 + tv.tv_usec);
         printf("Task %u: s: %lu, us: %lu\n", *id, tv.tv_sec, tv.tv_usec);
-#endif        
   //      sched_yield();
   //      clock_nanosleep()
     }
@@ -131,13 +128,13 @@ int main(int argc, char** argv)
 
     getCommandLine(argc, argv, &p);
     readConfig(&p);
-
 //exit(0);
-
     buildOutputFilePath(&p);
-    createOutputfilename(&p);
+//exit(0);
+    buildOutputfileName(&p);
+exit(0);
 
-    openLogs(&p);
+//    openLogs(&p);
 
     switch(p.modeOutputFlag)
     {

@@ -36,6 +36,7 @@
 #define MAXTHREADS          10
 #define UTCBUFLEN           64
 #define MAXPATHBUFLEN       1500
+#define FOLDERNAMELEN       1500
 #define SITEPREFIXLEN       32
 #define GRIDSQRLEN          7
 
