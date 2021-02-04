@@ -45,9 +45,10 @@
 //------------------------------------------
 typedef struct tag_pList
 {
+    int numThreads;
+    int threadOffsetUS;
     int i2cBusNumber;
     int i2c_fd;
-    int numThreads;
     int modeOutputFlag;
     char *baseFilePath;
     char *outputFilePath;

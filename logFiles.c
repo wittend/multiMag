@@ -175,6 +175,7 @@ int setupDefaults(pList *p)
         memset(p, 0, sizeof(pList));
 
         p->numThreads       = 2;
+        p->threadOffsetUS   = 150;
         p->i2cBusNumber     = 1;
         p->i2c_fd           = 0;
         p->modeOutputFlag   = 0;

@@ -50,16 +50,13 @@ void *i2cReaderThread(void *thread_id)
     //}
     while(1) 
     {
-        // usleep(1000 * 1000 * 60);    // 1 minute
-        //usleep(1000 * 1000);                   // 1 second
-        //utcTime = getUTC();
-        //strftime(utcStr, UTCBUFLEN, "%d %b %Y %T", utcTime);
-        //printf("Task %u: 1 second %s\n", *id, utcStr);
         struct timeval tv;
-        gettimeofday(&tv, NULL);
-        printf("Task %u: s: %lu, us: %lu\n", *id, tv.tv_sec, tv.tv_usec);
+
+        usleep(1000 * 1000);                   // 1 second
   //      sched_yield();
   //      clock_nanosleep()
+        gettimeofday(&tv, NULL);
+        printf("Task %u: S: %lu, uS: %lu\n", *id, tv.tv_sec, tv.tv_usec);
     }
     pthread_exit(NULL);
 }
@@ -132,7 +129,7 @@ int main(int argc, char** argv)
     buildOutputFilePath(&p);
 //exit(0);
     buildOutputfileName(&p);
-exit(0);
+//exit(0);
 
 //    openLogs(&p);
 
@@ -153,6 +150,7 @@ exit(0);
             printf("unable to create thread! \n");
             exit(-1);
         }
+        usleep(p.threadOffsetUS);                   // Default 150 uS
     }
     gflag = 1;
     for(i = 0; i < p.numThreads; i++) 
