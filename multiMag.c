@@ -152,16 +152,16 @@ int main(int argc, char** argv)
         }
         usleep(p.threadOffsetUS);                   // Default 150 uS
     }
-    gflag = 1;
+    //gflag = 1;
     for(i = 0; i < p.numThreads; i++) 
     {
         pthread_join(tids[i], NULL);
     }
-    printf("Waiting...\n", i);
-    usleep(1000000);
-    printf("gflag = 0 ...\n", i);
-    gflag = 0;
-    printf("pthread_exit(NULL)\n", i);
+    //printf("Waiting...\n");
+    //usleep(1000000);
+    //printf("gflag = 0 ...\n");
+    //gflag = 0;
+    //printf("pthread_exit(NULL)\n");
     pthread_exit(NULL);     
     return 0;
 }
