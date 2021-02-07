@@ -1,0 +1,14 @@
+[
+    {
+        "numThreads"        :   2,
+        "threadOffsetUS"    :   150,
+        "i2cBusNumber"      :   1,
+        "i2c_fd"            :   0,
+        "modeOutputFlag"    :   0,
+        "baseFilePath"      :   "/PSWS",
+        "outputFilePath"    :   "/Srawdata",
+        "outputFileName"    :   "",
+        "gridSqr"           :   "EM38uw",
+        "sitePrefix"        :   "N0000023"
+    }
+]

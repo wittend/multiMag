@@ -146,15 +146,6 @@ char *logHeader(int argc, char **argv, pList *p)
 }
 
 //------------------------------------------
-// readConfig()
-//------------------------------------------
-int readConfig(pList *p)
-{
-    int rv = 0;
-    return rv;
-}
-
-//------------------------------------------
 // openLogs()
 //------------------------------------------
 int openLogs(pList *p)

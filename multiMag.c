@@ -14,6 +14,7 @@
 //=========================================================================
 #include "main.h"
 #include "logFiles.h"
+#include "config.h"
 
 int gflag = 1;
 
@@ -34,6 +35,21 @@ char baseFileFolder[FOLDERNAMELEN]  = "/PSWS";
 char baseFilePath[MAXPATHBUFLEN]    = "";
 char outFilePath[MAXPATHBUFLEN]     = "";
 char outFileName[MAXPATHBUFLEN]     = "";
+char configFilePath[MAXPATHBUFLEN]  = "";
+char configFileName[MAXPATHBUFLEN]  = "config/config.json";
+
+//------------------------------------------
+// readConfig()
+//------------------------------------------
+int readConfig(pList *p)
+{
+    int rv = 0;
+    if(readConfigFromFile(p, configFileName) == 0)
+    {
+        rv = 0;
+    }
+    return rv;
+}
 
 //------------------------------------------
 // i2cReader()
