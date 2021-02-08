@@ -38,6 +38,58 @@ char outFileName[MAXPATHBUFLEN]     = "";
 char configFilePath[MAXPATHBUFLEN]  = "";
 char configFileName[MAXPATHBUFLEN]  = "config/config.json";
 
+//volatile int alarm_fired;
+
+#define SIGTERM_MSG "SIGTERM received.\n"
+#define SIGINT_MSG "SIGINT received.\n"
+
+//------------------------------------------
+// sig_term_handler()
+//------------------------------------------
+void sig_term_handler(int signum, siginfo_t *info, void *ptr)
+{
+    //saveConfigToFile(pList *p);
+    write(STDERR_FILENO, SIGTERM_MSG, sizeof(SIGTERM_MSG));
+    exit(0);
+}
+
+//------------------------------------------
+// catch_sigterm()
+//------------------------------------------
+void catch_sigterm()
+{
+    static struct sigaction _sigact;
+
+    memset(&_sigact, 0, sizeof(_sigact));
+    _sigact.sa_sigaction = sig_term_handler;
+    _sigact.sa_flags = SA_SIGINFO;
+
+    sigaction(SIGTERM, &_sigact, NULL);
+}
+
+//------------------------------------------
+// sig_int_handler()
+//------------------------------------------
+void sig_int_handler(int signum, siginfo_t *info, void *ptr)
+{
+    write(STDERR_FILENO, SIGINT_MSG, sizeof(SIGINT_MSG));
+    exit(0);
+}
+
+//------------------------------------------
+// catch_sigint()
+//------------------------------------------
+void catch_sigint()
+{
+    static struct sigaction _sigact;
+
+    memset(&_sigact, 0, sizeof(_sigact));
+    _sigact.sa_sigaction = sig_int_handler;
+    _sigact.sa_flags = SA_SIGINFO;
+
+    sigaction(SIGINT, &_sigact, NULL);
+}
+
 //------------------------------------------
 // readConfig()
 //------------------------------------------
@@ -68,6 +120,7 @@ void *i2cReaderThread(void *thread_id)
     {
         struct timeval tv;
 
+        //catch_sigterm();
         usleep(1000 * 1000);                   // 1 second
   //      sched_yield();
   //      clock_nanosleep()
@@ -136,6 +189,8 @@ int main(int argc, char** argv)
     pList p;
     int rv = 0;
 
+    //catch_sigterm();
+    catch_sigint();
     // Set default parameters
     setupDefaults(&p);
 
