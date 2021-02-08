@@ -33,6 +33,9 @@
 //#include "logFiles.h"
 #include "utilRoutines.h"
 
+#define MAXVERSIONLEN       30
+#define MULTIMAG_VERSION   "0.0.0"
+
 #define MAXTHREADS          10
 #define UTCBUFLEN           64
 #define MAXPATHBUFLEN       1500

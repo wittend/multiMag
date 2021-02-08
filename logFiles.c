@@ -11,6 +11,8 @@
 //#include "jsmn/jsmn.h"
 //#include "uthash/uthash.h"
 
+//extern char version[MAXVERSIONLEN];
+
 extern char cityState[MAXPATHBUFLEN];
 extern char callSign[MAXPATHBUFLEN];
 extern char latLonElv[MAXPATHBUFLEN];
@@ -75,8 +77,8 @@ char *logHeader(int argc, char **argv, pList *p)
     //{
     //    getMagRev(p);
     //}
-    //snprintf(outLine, 1023, "\n#   Software Version:                  %s\n",        version);
-    //strncat(outStr, outLine, strlen(outLine));
+    snprintf(outLine, 1023, "\n#   Software Version:                  %s\n",        MULTIMAG_VERSION);
+    strncat(outStr, outLine, strlen(outLine));
     //snprintf(outLine, 1023, "#   Magnetometer rev. ID detected:     %i (dec)\n",    p->magRevId); 
     //strncat(outStr, outLine, strlen(outLine));
     //snprintf(outLine, 1023, "#   I2C bus number as integer:         %i (dec)\n",    p->i2cBusNumber);
@@ -164,7 +166,7 @@ int setupDefaults(pList *p)
     if(p != NULL)
     {
         memset(p, 0, sizeof(pList));
-
+//        p->version          = version;
         p->numThreads       = 2;
         p->threadOffsetUS   = 150;
         p->i2cBusNumber     = 1;

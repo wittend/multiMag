@@ -18,6 +18,10 @@
 
 int gflag = 1;
 
+//------------------------------------------
+// Global variables 
+//------------------------------------------
+//char version[MAXVERSIONLEN]                    = MULTIMAG_VERSION;
 // variables to hold metadata read from files
 char cityState[MAXPATHBUFLEN]       = "";
 char callSign[MAXPATHBUFLEN]        = "";
@@ -40,8 +44,8 @@ char configFileName[MAXPATHBUFLEN]  = "config/config.json";
 
 //volatile int alarm_fired;
 
-#define SIGTERM_MSG "SIGTERM received.\n"
-#define SIGINT_MSG "SIGINT received.\n"
+#define SIGTERM_MSG "\nSIGTERM received.\n"
+#define SIGINT_MSG "\nSIGINT received.\n"
 
 //------------------------------------------
 // sig_term_handler()
@@ -189,7 +193,7 @@ int main(int argc, char** argv)
     pList p;
     int rv = 0;
 
-    //catch_sigterm();
+    catch_sigterm();
     catch_sigint();
     // Set default parameters
     setupDefaults(&p);
