@@ -19,6 +19,8 @@
 
 int readConfigFromFile(pList *p, char *cfgFile);
 int saveConfigToFile(pList *p, char *cfgFile);
+int readConfig(pList *p);
+int configDecode(pList *p, char *key, char *value);
 
 
 #endif // CONFIGROUTINES_h

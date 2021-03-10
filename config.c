@@ -13,6 +13,31 @@
 
 #define _DEBUG 1
 
+//remembar to ditch this..
+extern char configFileName[MAXPATHBUFLEN];
+
+//------------------------------------------
+// readConfig()
+//------------------------------------------
+int readConfig(pList *p)
+{
+    int rv = 0;
+    if(readConfigFromFile(p, configFileName) == 0)
+    {
+        rv = 0;
+    }
+#ifdef _DEBUG    
+    else
+    {
+        printf("readConfigFromFile(p, %s) Success!\n", configFileName);
+    }
+#endif    
+    return rv;
+}
+
+#define MAXKEYLEN   64
+#define MAXVALLEN   64
+
 //------------------------------------------
 // readConfigFromFile()
 //------------------------------------------
@@ -22,6 +47,10 @@ int readConfigFromFile(pList *p, char *cfgFile)
     struct stat fs;
     FILE *fd = NULL;
     char jsonstr[JSONBUFLEN] = "";
+    int  jsmnStrPairFirst = FALSE;
+    int  jsmnStrPair = FALSE;
+    char kStr[MAXKEYLEN] = "";
+    char kVal[MAXVALLEN] = "";
     
     if(lstat(cfgFile, &fs) == -1)
     {
@@ -36,7 +65,7 @@ int readConfigFromFile(pList *p, char *cfgFile)
         {
             printf("\nConfig read from file: %s\n\n", cfgFile);
 #if _DEBUG
-            printf(jsonstr);
+            printf("%s\n", jsonstr);
 #endif
         }
         else
@@ -67,32 +96,60 @@ int readConfigFromFile(pList *p, char *cfgFile)
             printf("jsmn_parse() returns %i tokens.\n", rv);
             for(int i =  0; i < rv; i++)
             {
-                char js[65] = "";
+                char js[MAXVALLEN] = "";
                 int type = t[i].type;
                 
-                printf("t[%i] type: ", i);
+                //printf("t[%i] type: ", i);
                 switch(type)
                 {
                     case JSMN_UNDEFINED:        // = 0,
-                        printf("JSMN_UNDEFINED.\n");
+                        //printf("JSMN_UNDEFINED.\n");
                         break;
                     case JSMN_OBJECT:           // = 1,
-                        printf("JSMN_OBJECT.\n");
+                        //printf("JSMN_OBJECT.\n");
                         break;
                     case JSMN_ARRAY:            // = 2,
-                        printf("JSMN_ARRAY.\n");
+                        //printf("JSMN_ARRAY.\n");
                         break;
                     case JSMN_STRING:           // = 3,
-                        printf("JSMN_STRING.  Value: ");
+                        //printf("JSMN_STRING.  Value: ");
                         strncpy(js, jsonstr + t[i].start, t[i].end - t[i].start);
 //                        js[t[i].end] = 0;
-                        printf("%s\n", js);
+                        //printf("%s\n", js);
+                        if(!jsmnStrPairFirst)
+                        {
+                            jsmnStrPairFirst = TRUE;
+                            strncpy(kStr, js, strlen(js));
+                            memset(kVal, 0, MAXVALLEN);
+                        }
+                        else
+                        {
+                            jsmnStrPairFirst = FALSE;
+                            strncpy(kVal, js, strlen(js));
+                            configDecode(p, kStr, kVal);                            
+                            memset(kStr, 0, MAXKEYLEN);
+                            memset(kVal, 0, MAXVALLEN);
+                        }
                         break;
                     case JSMN_PRIMITIVE:        // = 4
-                        printf("JSMN_PRIMITIVE. Value: ");
+                        //printf("JSMN_PRIMITIVE. Value: ");
                         strncpy(js, jsonstr + t[i].start, t[i].end - t[i].start);
 //                        js[t[i].end] = 0;
-                        printf("%s\n", js);
+                        //printf("%s\n", js);
+                        if(!jsmnStrPairFirst)
+                        {
+                            jsmnStrPairFirst = TRUE;
+                            strncpy(kStr, js, strlen(js));
+                            memset(kVal, 0, MAXVALLEN);
+                        }
+                        else
+                        {
+                            jsmnStrPairFirst = FALSE;
+                            strncpy(kVal, js, strlen(js));
+                            configDecode(p, kStr, kVal);                            
+                            memset(kStr, 0, MAXKEYLEN);
+                            memset(kVal, 0, MAXVALLEN);
+                        }
                         break;
                 }
             }
@@ -101,6 +158,43 @@ int readConfigFromFile(pList *p, char *cfgFile)
     }
     printf("\n");
 #endif
+    return rv;
+}
+
+static char *keyWords[] =
+{
+    "numThreads",
+    "threadOffsetUS",
+    "i2cBusNumber",
+    "i2c_fd",
+    "modeOutputFlag",
+    "baseFilePath",
+    "outputFilePath",
+    "outputFileName",
+    "gridSqr",
+    "sitePrefix"
+};
+
+//------------------------------------------
+// configDecode()
+//------------------------------------------
+int configDecode(pList *p, char *key, char *value)
+{
+    int rv = 0;
+    
+    printf("k: %20s,  v: %20s\n", key, value);
+    //for int i = 0; i < len; i++)
+    //{
+    //    //if(strncmp(key, keyWords[i], strlen(keyWords[i]) == 0)
+    //    if(strncmp(key, keyWords[i], strlen(keyWords[i]) == 0)
+    //    {
+    //        
+    //    }
+    //    else
+    //    {
+    //        break;
+    //    }
+    //}
     return rv;
 }
 
