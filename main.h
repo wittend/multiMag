@@ -28,6 +28,12 @@
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <pthread.h>
+#ifdef ODROID_N2
+    #include <wiringPi.h>
+#endif
+#ifdef USE_BCM2835
+    #include <bcm2835.h>
+#endif
 #include "rm3100.h"
 #include "mcp9808.h"
 //#include "logFiles.h"
