@@ -94,23 +94,6 @@ void catch_sigint()
     sigaction(SIGINT, &_sigact, NULL);
 }
 
-////------------------------------------------
-//// readConfig()
-////------------------------------------------
-//int readConfig(pList *p)
-//{
-//    int rv = 0;
-//    if(readConfigFromFile(p, configFileName) == 0)
-//    {
-//        rv = 0;
-//    }
-//    else
-//    {
-//        printf("readConfigFromFile(p, %s) Success!\n", configFileName);
-//    }
-//    return rv;
-//}
-
 //------------------------------------------
 // i2cReader()
 //------------------------------------------
@@ -204,6 +187,7 @@ int main(int argc, char** argv)
 
     getCommandLine(argc, argv, &p);
     readConfig(&p);
+    printParams();
 //exit(0);
     buildOutputFilePath(&p);
 //exit(0);
@@ -241,6 +225,7 @@ int main(int argc, char** argv)
     //printf("gflag = 0 ...\n");
     //gflag = 0;
     //printf("pthread_exit(NULL)\n");
-    pthread_exit(NULL);     
+    pthread_exit(NULL);
+    hashDeleteAll();
     return 0;
 }

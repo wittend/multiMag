@@ -201,7 +201,12 @@ void buildOutputfileName(pList *p)
     strncat((char *)outFileName, p->gridSqr, 7);
     strncat((char *)outFileName, "_MGT.csv", 9);
     p->outputFileName = outFileName;
-printf("buildOutputfileName(): [%s][%s]\n", p->baseFilePath, p->outputFileName);
+//  printf("buildOutputfileName(): [%s][%s]\n", p->baseFilePath, p->outputFileName);
+
+    strncat((char *)baseFilePath, "/", 2);
+    strncat((char *)baseFilePath, outFileName, MAXPATHBUFLEN);
+
+printf("buildOutputfileName(): [%s]\n", p->baseFilePath);
 fflush(stdout);
 }
 

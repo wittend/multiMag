@@ -21,6 +21,9 @@ int readConfigFromFile(pList *p, char *cfgFile);
 int saveConfigToFile(pList *p, char *cfgFile);
 int readConfig(pList *p);
 int configDecode(pList *p, char *key, char *value);
-
+void printParams();
+struct pStruct *findKeyInt(int id);
+struct pStruct *findKeyStr(char *key);
+void hashDeleteAll();
 
 #endif // CONFIGROUTINES_h

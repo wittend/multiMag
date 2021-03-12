@@ -11,10 +11,41 @@
 #include "uthash/uthash.h"
 #include "jsmn/jsmn.h"
 
-#define _DEBUG 1
+#define _DEBUG 0
+#define MAXKEYLEN   64
+#define MAXVALLEN   64
 
 //remembar to ditch this..
 extern char configFileName[MAXPATHBUFLEN];
+int id = 1;
+
+static char *keyWords[] =
+{
+    "numThreads",
+    "threadOffsetUS",
+    "i2cBusNumber",
+    "i2c_fd",
+    "modeOutputFlag",
+    "baseFilePath",
+    "outputFilePath",
+    "outputFileName",
+    "gridSqr",
+    "sitePrefix",
+     NULL
+};
+
+//------------------------------------------
+// struct pStruct
+//------------------------------------------
+struct pStruct
+{
+    int id;                    /* key */
+    char key[MAXKEYLEN];
+    char val[MAXVALLEN];
+    UT_hash_handle hh;         /* makes this structure hashable */
+};
+
+struct pStruct *params = NULL;
 
 //------------------------------------------
 // readConfig()
@@ -34,9 +65,6 @@ int readConfig(pList *p)
 #endif    
     return rv;
 }
-
-#define MAXKEYLEN   64
-#define MAXVALLEN   64
 
 //------------------------------------------
 // readConfigFromFile()
@@ -76,7 +104,6 @@ int readConfigFromFile(pList *p, char *cfgFile)
     }
     jsmn_parser parser;
     jsmntok_t t[JSONBUFTOKENCOUNT]; /* We expect no more than JSONBUFTOKENCOUNT JSON tokens */
-    
     jsmn_init(&parser);
     rv = jsmn_parse(&parser, jsonstr, strlen(jsonstr), t, JSONBUFTOKENCOUNT);
 #if _DEBUG
@@ -103,19 +130,13 @@ int readConfigFromFile(pList *p, char *cfgFile)
                 switch(type)
                 {
                     case JSMN_UNDEFINED:        // = 0,
-                        //printf("JSMN_UNDEFINED.\n");
                         break;
                     case JSMN_OBJECT:           // = 1,
-                        //printf("JSMN_OBJECT.\n");
                         break;
                     case JSMN_ARRAY:            // = 2,
-                        //printf("JSMN_ARRAY.\n");
                         break;
                     case JSMN_STRING:           // = 3,
-                        //printf("JSMN_STRING.  Value: ");
                         strncpy(js, jsonstr + t[i].start, t[i].end - t[i].start);
-//                        js[t[i].end] = 0;
-                        //printf("%s\n", js);
                         if(!jsmnStrPairFirst)
                         {
                             jsmnStrPairFirst = TRUE;
@@ -132,10 +153,7 @@ int readConfigFromFile(pList *p, char *cfgFile)
                         }
                         break;
                     case JSMN_PRIMITIVE:        // = 4
-                        //printf("JSMN_PRIMITIVE. Value: ");
                         strncpy(js, jsonstr + t[i].start, t[i].end - t[i].start);
-//                        js[t[i].end] = 0;
-                        //printf("%s\n", js);
                         if(!jsmnStrPairFirst)
                         {
                             jsmnStrPairFirst = TRUE;
@@ -161,19 +179,50 @@ int readConfigFromFile(pList *p, char *cfgFile)
     return rv;
 }
 
-static char *keyWords[] =
+//------------------------------------------
+// addParam()
+//------------------------------------------
+void addParam(int id, char *key, char *val)
 {
-    "numThreads",
-    "threadOffsetUS",
-    "i2cBusNumber",
-    "i2c_fd",
-    "modeOutputFlag",
-    "baseFilePath",
-    "outputFilePath",
-    "outputFileName",
-    "gridSqr",
-    "sitePrefix"
-};
+    struct pStruct *s;
+
+    HASH_FIND_STR(params, key, s);      /* id already in the hash? */
+    if(s == NULL)
+    {
+        s = (struct pStruct*)malloc(sizeof(struct pStruct));
+        s->id = id;
+        strncpy(s->key, key, MAXKEYLEN - 1);
+        strncpy(s->val, val, MAXVALLEN - 1);
+        //HASH_ADD_INT(params, id, s);  /* id: name of key field */
+        HASH_ADD_STR(params, key, s);
+    }
+}
+
+//------------------------------------------
+// findUser()
+//------------------------------------------
+struct pStruct *findKeyStr(char *key)
+{
+    struct pStruct *s;
+#if _DEBUG0    
+    printf("findKeyStr(\"%s\")\n", key);
+#endif
+//    HASH_FIND_STR(params, &id, key);  /* s: output pointer */
+    HASH_FIND_STR(params, key, s);
+#if _DEBUG0
+    if(s)
+    {
+        printf("%s val is %s\n", s->key, s->val);
+    }
+#endif
+#if _DEBUG0    
+    else
+    {
+        printf("Returns NULL.\n");
+    }
+#endif
+    return s;
+}
 
 //------------------------------------------
 // configDecode()
@@ -182,20 +231,72 @@ int configDecode(pList *p, char *key, char *value)
 {
     int rv = 0;
     
-    printf("k: %20s,  v: %20s\n", key, value);
-    //for int i = 0; i < len; i++)
-    //{
-    //    //if(strncmp(key, keyWords[i], strlen(keyWords[i]) == 0)
-    //    if(strncmp(key, keyWords[i], strlen(keyWords[i]) == 0)
-    //    {
-    //        
-    //    }
-    //    else
-    //    {
-    //        break;
-    //    }
-    //}
+    printf("k: %-20s,  v: %20s\n", key, value);
+    addParam(id, key, value);
+    printf("Added id: %i\n", id);
+    id++;
     return rv;
+}
+
+//------------------------------------------
+// saveConfigToFile()
+//------------------------------------------
+void printParams()
+{
+    struct pStruct *s;
+
+#if _DEBUG
+    printf("\n\nIn printParams()\n");
+#endif
+    for(s = params; s != NULL; s = (struct pStruct*)(s->hh.next))
+    {
+        printf("id %4d: key: \"%s\", val: \"%s\"\n", s->id, s->key, s->val);
+    }
+#if _DEBUG
+    printf("\n\n");
+    printf("\nShow KNOWN key:val pairs\n");
+    int i = 0;
+    while(keyWords[i] != NULL)
+    {
+        if((s = findKeyStr(keyWords[i++])) != NULL)
+        {
+            printf("id %4d: key: \"%s\", val: \"%s\"\n", s->id, s->key, s->val);
+        }
+    }
+    printf("\nShow ALL key:val pairs\n");
+    {
+        for (s = params; s != NULL; s = s->hh.next)
+        {
+            printf("id %4d: key: \"%s\", val: \"%s\"\n", s->id, s->key, s->val);
+        }
+    }    
+    printf("\n\n");
+#endif    
+}
+
+//------------------------------------------
+// findKeyInt()
+//------------------------------------------
+struct pStruct *findKeyInt(int id)
+{
+    struct pStruct *s;
+
+    HASH_FIND_INT(params, &id, s);  /* s: output pointer */
+    return s;
+}
+
+//------------------------------------------
+// hashDeleteAll()
+//------------------------------------------
+void hashDeleteAll()
+{
+    struct pStruct *current_param, *tmp;
+    
+    HASH_ITER(hh, params, current_param, tmp)
+    {
+        HASH_DEL(params, current_param);  /* delete; users advances to next */
+        free(current_param);              /* optional- if you want to free  */
+    }
 }
 
 //------------------------------------------
