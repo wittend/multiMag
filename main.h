@@ -4,10 +4,6 @@
 // An interface for the RM3100 3-axis magnetometer from PNI Sensor Corp.
 // Derived in part from several sources:
 //
-//    PSWS_FileNameRequirementsV0_13.pdf
-//      2020-07-15 UTC
-//      Author: J C Gibbons
-// 
 // Author:      David M. Witten II, KD0EAG
 // Date:        Jan 30, 2021
 // License:     GPL 3.0
@@ -38,6 +34,10 @@
 #include "mcp9808.h"
 //#include "logFiles.h"
 #include "utilRoutines.h"
+#include "uthash/uthash.h"
+
+#define MAXKEYLEN   64
+#define MAXVALLEN   64
 
 #define MAXVERSIONLEN       30
 #define MULTIMAG_VERSION   "0.0.0"
@@ -50,10 +50,22 @@
 #define GRIDSQRLEN          7
 
 //------------------------------------------
+// struct pStruct
+//------------------------------------------
+struct pStruct
+{
+    int id;                    /* key */
+    char key[MAXKEYLEN];
+    char val[MAXVALLEN];
+    UT_hash_handle hh;         /* makes this structure hashable */
+};
+
+//------------------------------------------
 // types
 //------------------------------------------
 typedef struct tag_pList
 {
+    int printParamFlg;
     int numThreads;
     int threadOffsetUS;
     int i2cBusNumber;
@@ -64,6 +76,8 @@ typedef struct tag_pList
     char *outputFileName;
     char *gridSqr;
     char *sitePrefix;
+    char *logOutputTime;
+    struct pStruct **jsParams;
 } pList;
 
 //------------------------------------------
@@ -72,5 +86,6 @@ typedef struct tag_pList
 int main(int argc, char** argv);
 void *i2cReader(void *thread_id);
 int getCommandLine(int argc, char** argv, pList *p);
+int setupDefaults(pList *p);
 
 #endif  // MULTIMAGMAIN_h

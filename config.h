@@ -17,13 +17,17 @@
 #define JSONBUFLEN          1025
 #define JSONBUFTOKENCOUNT   1024
 
+void printParams();
 int readConfigFromFile(pList *p, char *cfgFile);
 int saveConfigToFile(pList *p, char *cfgFile);
 int readConfig(pList *p);
 int configDecode(pList *p, char *key, char *value);
-void printParams();
 struct pStruct *findKeyInt(int id);
 struct pStruct *findKeyStr(char *key);
 void hashDeleteAll();
+//int configDecode(pList *p, char *key, char *value);
+//struct pStruct *findKeyIntPlist(pList *p, int id);
+//struct pStruct *findKeyStrPlist(pList *p, char *key);
+//void addParamPlist(pList *p, int id, char *key, char *val);
 
 #endif // CONFIGROUTINES_h

@@ -11,9 +11,7 @@
 #include "uthash/uthash.h"
 #include "jsmn/jsmn.h"
 
-#define _DEBUG 0
-#define MAXKEYLEN   64
-#define MAXVALLEN   64
+#define _DEBUG 1
 
 //remembar to ditch this..
 extern char configFileName[MAXPATHBUFLEN];
@@ -34,19 +32,24 @@ static char *keyWords[] =
      NULL
 };
 
+extern struct pStruct *jsparams;
+
 //------------------------------------------
-// struct pStruct
+// printParams()
 //------------------------------------------
-struct pStruct
+void printParams(pList* p)
 {
-    int id;                    /* key */
-    char key[MAXKEYLEN];
-    char val[MAXVALLEN];
-    UT_hash_handle hh;         /* makes this structure hashable */
-};
+    struct pStruct *s;
+    int i = 0;
 
-struct pStruct *params = NULL;
-
+    fprintf(stdout, "#==============================================================\n");
+    for (s = jsparams; s != NULL; s = s->hh.next)
+    {
+        fprintf(stdout, "    id %4d: key: \"%s\", val: \"%s\"\n", s->id, s->key, s->val);
+    }
+    fprintf(stdout, "#==============================================================\n\n");
+}
+    
 //------------------------------------------
 // readConfig()
 //------------------------------------------
@@ -57,10 +60,10 @@ int readConfig(pList *p)
     {
         rv = 0;
     }
-#ifdef _DEBUG    
+#ifdef _DEBUG0    
     else
     {
-        printf("readConfigFromFile(p, %s) Success!\n", configFileName);
+        fprintf(stdout, "readConfigFromFile(p, %s) Success!\n", configFileName);
     }
 #endif    
     return rv;
@@ -91,10 +94,11 @@ int readConfigFromFile(pList *p, char *cfgFile)
     {
         if(fread(jsonstr, fs.st_size, 1, fd))
         {
-            printf("\nConfig read from file: %s\n\n", cfgFile);
-#if _DEBUG
-            printf("%s\n", jsonstr);
+            fprintf(stdout, "\nConfig read from file: %s\n", cfgFile);
+#if _DEBUG0
+            fprintf(stdout, "%s\n", jsonstr);
 #endif
+            fclose(fd);
         }
         else
         {
@@ -103,30 +107,29 @@ int readConfigFromFile(pList *p, char *cfgFile)
         }
     }
     jsmn_parser parser;
-    jsmntok_t t[JSONBUFTOKENCOUNT]; /* We expect no more than JSONBUFTOKENCOUNT JSON tokens */
+    jsmntok_t t[JSONBUFTOKENCOUNT];             // We expect no more than JSONBUFTOKENCOUNT JSON tokens
     jsmn_init(&parser);
     rv = jsmn_parse(&parser, jsonstr, strlen(jsonstr), t, JSONBUFTOKENCOUNT);
-#if _DEBUG
-    printf("\n");
     switch(rv)
     {
         case JSMN_ERROR_INVAL:
-            printf("njsmn_parse() returns JSMN_ERROR_INVAL.\nBad token, JSON string is corrupted.\n");
+            fprintf(stdout, "jsmn_parse() returns JSMN_ERROR_INVAL.\nBad token, JSON string is corrupted.\n");
             break;
         case JSMN_ERROR_NOMEM:
-            printf("jsmn_parse() returns JSMN_ERROR_NOMEM.\nNot enough tokens, JSON string is too large\n");
+            fprintf(stdout, "jsmn_parse() returns JSMN_ERROR_NOMEM.\nNot enough tokens, JSON string is too large\n");
             break;
         case JSMN_ERROR_PART:
-            printf("jsmn_parse() returns JSMN_ERROR_PART.\nJSON string is too short, expecting more JSON data\n");
+            fprintf(stdout, "jsmn_parse() returns JSMN_ERROR_PART.\nJSON string is too short, expecting more JSON data\n");
             break;
         default:
-            printf("jsmn_parse() returns %i tokens.\n", rv);
+#ifdef DEBUG0            
+            fprintf(stdout, "jsmn_parse() returns %i tokens.\n", rv);
+#endif            
             for(int i =  0; i < rv; i++)
             {
                 char js[MAXVALLEN] = "";
                 int type = t[i].type;
                 
-                //printf("t[%i] type: ", i);
                 switch(type)
                 {
                     case JSMN_UNDEFINED:        // = 0,
@@ -171,11 +174,9 @@ int readConfigFromFile(pList *p, char *cfgFile)
                         break;
                 }
             }
-            printf("\n");
+            fprintf(stdout, "\n");
             break;
     }
-    printf("\n");
-#endif
     return rv;
 }
 
@@ -186,7 +187,7 @@ void addParam(int id, char *key, char *val)
 {
     struct pStruct *s;
 
-    HASH_FIND_STR(params, key, s);      /* id already in the hash? */
+    HASH_FIND_STR(jsparams, key, s);      /* id already in the hash? */
     if(s == NULL)
     {
         s = (struct pStruct*)malloc(sizeof(struct pStruct));
@@ -194,7 +195,7 @@ void addParam(int id, char *key, char *val)
         strncpy(s->key, key, MAXKEYLEN - 1);
         strncpy(s->val, val, MAXVALLEN - 1);
         //HASH_ADD_INT(params, id, s);  /* id: name of key field */
-        HASH_ADD_STR(params, key, s);
+        HASH_ADD_STR(jsparams, key, s);
     }
 }
 
@@ -204,21 +205,21 @@ void addParam(int id, char *key, char *val)
 struct pStruct *findKeyStr(char *key)
 {
     struct pStruct *s;
+    
 #if _DEBUG0    
-    printf("findKeyStr(\"%s\")\n", key);
+    fprintf(stdout, "findKeyStr(\"%s\")\n", key);
 #endif
-//    HASH_FIND_STR(params, &id, key);  /* s: output pointer */
-    HASH_FIND_STR(params, key, s);
+    HASH_FIND_STR(jsparams, key, s);
 #if _DEBUG0
     if(s)
     {
-        printf("%s val is %s\n", s->key, s->val);
+        fprintf(stdout, "%s val is %s\n", s->key, s->val);
     }
 #endif
-#if _DEBUG0    
+#if _DEBUG0
     else
     {
-        printf("Returns NULL.\n");
+        fprintf(stdout, "Returns NULL.\n");
     }
 #endif
     return s;
@@ -231,47 +232,15 @@ int configDecode(pList *p, char *key, char *value)
 {
     int rv = 0;
     
-    printf("k: %-20s,  v: %20s\n", key, value);
+#ifdef DEBUG0    
+    fprintf(stdout, "k: %-20s,  v: %20s\n", key, value);
+#endif
     addParam(id, key, value);
-    printf("Added id: %i\n", id);
+#ifdef DEBUG0    
+    fprintf(stdout, "Added id: %i\n", id);
+#endif
     id++;
     return rv;
-}
-
-//------------------------------------------
-// saveConfigToFile()
-//------------------------------------------
-void printParams()
-{
-    struct pStruct *s;
-
-#if _DEBUG
-    printf("\n\nIn printParams()\n");
-#endif
-    for(s = params; s != NULL; s = (struct pStruct*)(s->hh.next))
-    {
-        printf("id %4d: key: \"%s\", val: \"%s\"\n", s->id, s->key, s->val);
-    }
-#if _DEBUG
-    printf("\n\n");
-    printf("\nShow KNOWN key:val pairs\n");
-    int i = 0;
-    while(keyWords[i] != NULL)
-    {
-        if((s = findKeyStr(keyWords[i++])) != NULL)
-        {
-            printf("id %4d: key: \"%s\", val: \"%s\"\n", s->id, s->key, s->val);
-        }
-    }
-    printf("\nShow ALL key:val pairs\n");
-    {
-        for (s = params; s != NULL; s = s->hh.next)
-        {
-            printf("id %4d: key: \"%s\", val: \"%s\"\n", s->id, s->key, s->val);
-        }
-    }    
-    printf("\n\n");
-#endif    
 }
 
 //------------------------------------------
@@ -281,7 +250,7 @@ struct pStruct *findKeyInt(int id)
 {
     struct pStruct *s;
 
-    HASH_FIND_INT(params, &id, s);  /* s: output pointer */
+    HASH_FIND_INT(jsparams, &id, s);  /* s: output pointer */
     return s;
 }
 
@@ -292,10 +261,10 @@ void hashDeleteAll()
 {
     struct pStruct *current_param, *tmp;
     
-    HASH_ITER(hh, params, current_param, tmp)
+    HASH_ITER(hh, jsparams, current_param, tmp)
     {
-        HASH_DEL(params, current_param);  /* delete; users advances to next */
-        free(current_param);              /* optional- if you want to free  */
+        HASH_DEL(jsparams, current_param);      // delete; users advances to next
+        free(current_param);                    // optional- if you want to free
     }
 }
 
@@ -312,9 +281,6 @@ int saveConfigToFile(pList *p, char *cfgFile)
     sprintf(js, "[\n    {");
     strcat(jsonstr, js);
  
-//    sprintf(js, "\n    \"swVersion\": \"%s\",", version);
-//    strcat(jsonstr, js);
-    
     sprintf(js, "\n      \"numThreads\"        :   %u,", p->numThreads);
     strcat(jsonstr, js);
     sprintf(js, "\n      \"threadOffsetUS\"    :   %u,", p->threadOffsetUS);
@@ -340,14 +306,14 @@ int saveConfigToFile(pList *p, char *cfgFile)
     strcat(jsonstr, js);
 
 #if _DEBUG
-    printf("%s", jsonstr);
+    fprintf(stdout, "%s", jsonstr);
 #endif
 
     if((fd = fopen(cfgFile, "w")) != NULL)
     {
         if(fwrite(jsonstr, strlen(jsonstr), 1, fd))
         {
-            printf("\nSaved config to file: %s\n\n", cfgFile);
+            fprintf(stdout, "\nSaved config to file: %s\n\n", cfgFile);
         }
         else
         {

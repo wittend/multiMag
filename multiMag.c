@@ -2,11 +2,6 @@
 // multiMag.c
 // 
 // An interface for the RM3100 3-axis magnetometer from PNI Sensor Corp.
-// Derived in part from several sources:
-//
-//    PSWS_FileNameRequirementsV0_13.pdf
-//      2020-07-15 UTC
-//      Author: J C Gibbons
 // 
 // Author:      David M. Witten II, KD0EAG
 // Date:        Jan 30, 2021
@@ -17,6 +12,19 @@
 #include "config.h"
 
 int gflag = 1;
+
+////------------------------------------------
+//// struct pStruct
+////------------------------------------------
+//struct pStruct
+//{
+//    int id;                    /* key */
+//    char key[MAXKEYLEN];
+//    char val[MAXVALLEN];
+//    UT_hash_handle hh;         /* makes this structure hashable */
+//};
+
+struct pStruct *jsparams = NULL;
 
 //------------------------------------------
 // Global variables 
@@ -41,7 +49,6 @@ char outFilePath[MAXPATHBUFLEN]     = "";
 char outFileName[MAXPATHBUFLEN]     = "";
 char configFilePath[MAXPATHBUFLEN]  = "";
 char configFileName[MAXPATHBUFLEN]  = "config/config.json";
-
 //volatile int alarm_fired;
 
 #define SIGTERM_MSG "\nSIGTERM received.\n"
@@ -122,53 +129,6 @@ void *i2cReaderThread(void *thread_id)
 }
 
 //------------------------------------------
-// getCommandLine()
-// Parse the command line options and setup
-// the internal option flags
-//------------------------------------------
-int getCommandLine(int argc, char** argv, pList *p)
-{
-    int c;
-
-    while((c = getopt(argc, argv, "?hn:")) != -1)
-    {
-        //int this_option_optind = optind ? optind : 1;
-        switch (c)
-        {
-            case 'n':
-                p->numThreads = atoi(optarg);
-                if(p->numThreads > MAXTHREADS)
-                {
-                    fprintf(stdout, "Number of IO threads must be <= %u.", MAXTHREADS);
-                    exit(1);
-                }
-                break;
-            case 'h':
-            case '?':
-                // fprintf(stdout, "\n%s Version = %s\n", argv[0], version);
-                fprintf(stdout, "\nParameters:\n\n");
-                fprintf(stdout, "   -n <count>             :  Set number of threads.          [ default 2 decimal]\n");
-                fprintf(stdout, "   -h or -?               :  Display this help.\n\n");
-                return 1;
-                break;
-            default:
-                fprintf(stdout, "\n?? getopt returned character code 0x%2X ??\n", c);
-                break;
-        }
-    }
-    if(optind < argc)
-    {
-        printf ("non-option ARGV-elements: ");
-        while (optind < argc)
-        {
-            printf ("%s ", argv[optind++]);
-        }
-        printf ("\n");
-    }
-    return 0;
-}
- 
-//------------------------------------------
 // main()
 // 
 //------------------------------------------
@@ -187,15 +147,10 @@ int main(int argc, char** argv)
 
     getCommandLine(argc, argv, &p);
     readConfig(&p);
-    printParams();
-//exit(0);
     buildOutputFilePath(&p);
-//exit(0);
     buildOutputfileName(&p);
-//exit(0);
 
 //    openLogs(&p);
-
     switch(p.modeOutputFlag)
     {
         case 0:
@@ -203,7 +158,10 @@ int main(int argc, char** argv)
         default:
             break;
     }
-    
+    if(p.printParamFlg)
+    {
+        printParams(&p);
+    }
     for(i = 0; i < p.numThreads; i++) 
     {
         printf("Creating i2cReader thread %u\n", i);

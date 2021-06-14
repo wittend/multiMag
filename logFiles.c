@@ -1,10 +1,10 @@
 //=========================================================================
 // logFiles.c
 // 
-//  Log and datafiles for multiMag magnetometer utility.
+//  Log and data files for multiMag magnetometer utility.
 //
 // Author:      David M. Witten II, KD0EAG
-// Date:        Jan 31, 2021
+// Date:        May 3, 2021
 // License:     GPL 3.0
 //=========================================================================
 #include "logFiles.h"
@@ -156,35 +156,35 @@ int openLogs(pList *p)
     return rv;
 }
 
-//------------------------------------------
-// setupDefaults()
-//------------------------------------------
-int setupDefaults(pList *p)
-{
-    int rv = 0;
-    
-    if(p != NULL)
-    {
-        memset(p, 0, sizeof(pList));
-//        p->version          = version;
-        p->numThreads       = 2;
-        p->threadOffsetUS   = 150;
-        p->i2cBusNumber     = 1;
-        p->i2c_fd           = 0;
-        p->modeOutputFlag   = 0;
-        p->outputFilePath   = NULL;
-        p->outputFileName   = NULL;
-        p->gridSqr          = gridSqr;
-        p->sitePrefix       = sitePrefix;
-
-    }
-    else
-    {
-        rv = 1;
-    }      
-    return rv;
-}
-
+////------------------------------------------
+//// setupDefaults()
+////------------------------------------------
+//int setupDefaults(pList *p)
+//{
+//    int rv = 0;
+//    
+//    if(p != NULL)
+//    {
+//        memset(p, 0, sizeof(pList));
+////        p->version          = version;
+//        p->numThreads       = 2;
+//        p->threadOffsetUS   = 150;
+//        p->i2cBusNumber     = 1;
+//        p->i2c_fd           = 0;
+//        p->modeOutputFlag   = 0;
+//        p->outputFilePath   = NULL;
+//        p->outputFileName   = NULL;
+//        p->gridSqr          = gridSqr;
+//        p->sitePrefix       = sitePrefix;
+//
+//    }
+//    else
+//    {
+//        rv = 1;
+//    }      
+//    return rv;
+//}
+//
 //------------------------------------------
 //  buildOutputfileName()
 //------------------------------------------
@@ -206,8 +206,8 @@ void buildOutputfileName(pList *p)
     strncat((char *)baseFilePath, "/", 2);
     strncat((char *)baseFilePath, outFileName, MAXPATHBUFLEN);
 
-printf("buildOutputfileName(): [%s]\n", p->baseFilePath);
-fflush(stdout);
+//printf("buildOutputfileName(): [%s]\n", p->baseFilePath);
+//fflush(stdout);
 }
 
 //------------------------------------------
@@ -221,8 +221,8 @@ int buildOutputFilePath(pList *p)
     strncpy(baseFilePath, penv, MAXPATHBUFLEN - 1);
     strncat(baseFilePath, baseFileFolder, FOLDERNAMELEN - 1);
     p->baseFilePath = baseFilePath;
-printf("buildOutputFilePath(): [%s]\n", p->baseFilePath);
-fflush(stdout);
+//printf("buildOutputFilePath(): [%s]\n", p->baseFilePath);
+//fflush(stdout);
     return rv;
 }
 
