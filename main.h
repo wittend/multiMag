@@ -36,12 +36,12 @@
 #include "utilRoutines.h"
 #include "uthash/uthash.h"
 
-#define MAXKEYLEN   64
-#define MAXVALLEN   64
+#define MAXKEYLEN           64
+#define MAXVALLEN           64
 
 #define MAXVERSIONLEN       30
 #define MULTIMAG_VERSION    "0.0.1"
- 
+
 #define MAXTHREADS          10
 #define UTCBUFLEN           64
 #define MAXPATHBUFLEN       1500
@@ -61,6 +61,54 @@ struct pStruct
 };
 
 //------------------------------------------
+// Parameter List struct
+//------------------------------------------
+//typedef struct tag_pList
+//{
+//    int SBCType;
+//    int boardType;
+//    int boardMode;
+//    int doBistMask;
+//    int buildLogPath;
+//
+//    int cc_x;
+//    int cc_y;
+//    int cc_z;
+//
+//    int x_gain;
+//    int y_gain;
+//    int z_gain;
+//
+//    int TMRCRate;
+//    int CMMSampleRate;
+//
+//    int samplingMode;
+//
+//    int NOSRegValue;
+//
+//    int DRDYdelay;
+//
+//    int readBackCCRegs;
+//    int magRevId;
+//
+//    int hideRaw;
+//    int i2cBusNumber;
+//    int i2c_fd;
+//    int jsonFlag;
+//
+//    int localTempOnly;
+//    int localTempAddr;
+//
+//    int magnetometerOnly;
+//    int magnetometerAddr;
+//
+//    int remoteTempOnly;
+//    int remoteTempAddr;
+//
+//} pList;
+
+
+//------------------------------------------
 // types
 //------------------------------------------
 typedef struct tag_pList
@@ -70,10 +118,40 @@ typedef struct tag_pList
     int threadOffsetUS;
     int i2cBusNumber;
     int i2c_fd;
-    int modeOutputFlag;
+    int i2cMUXAddr;
+    FILE *outfp;
+    int  fdPipeIn;
+    int  fdPipeOut;
+
+    int modeOutputFlag;         // ?
+
+    int doBistMask;             // ?
+    int outDelay;
+    int showParameters;
+    int singleRead;
+    int tsMilliseconds;         // ?
+    int showTotal;              // ?
+    int logOutput;
+    int useOutputPipe;
+    int TMRCRate;
+    int CMMSampleRate;
+    int samplingMode;
+    int NOSRegValue;
+
+    int cc_x;
+    int cc_y;
+    int cc_z;
+
+    int x_gain;
+    int y_gain;
+    int z_gain;
+
+    char *Version;
     char *baseFilePath;
     char *outputFilePath;
     char *outputFileName;
+    char *pipeInPath;
+    char *pipeOutPath;
     char *gridSqr;
     char *sitePrefix;
     char *logOutputTime;

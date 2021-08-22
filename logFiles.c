@@ -246,3 +246,27 @@ int setOutputFileRoot(pList *p, char *outPath)
     return rv;
 }
 
+//------------------------------------------
+// openUIPipes()
+//------------------------------------------
+int openUIPipes(pList *p)
+{
+    int rv = 0;
+    if(p->useOutputPipe = TRUE)
+    {
+        // Notide that fdPipeOut and fdPipeIn are intentionally reversed.
+        if(!(p->fdPipeOut = open(p->pipeInPath, O_WRONLY | O_CREAT)))
+        {
+            perror("Open PIPE Out failed: ");
+            fprintf(stderr, p->pipeInPath);
+            exit(1);
+        }
+        if(!(p->fdPipeIn = open(p->pipeOutPath, O_RDONLY | O_CREAT)))
+        {
+            perror("Open PIPE In failed: ");
+            fprintf(stderr, p->pipeOutPath);
+            exit(1);
+        }
+    }
+    return rv;
+}

@@ -59,7 +59,7 @@ int setupDefaults(pList *p)
     }      
     return rv;
 }
- 
+
 //------------------------------------------
 // getCommandLine()
 // Parse the command line options and setup

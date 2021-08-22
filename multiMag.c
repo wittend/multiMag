@@ -31,14 +31,15 @@ struct pStruct *jsparams = NULL;
 //------------------------------------------
 //char version[MAXVERSIONLEN]                    = MULTIMAG_VERSION;
 // variables to hold metadata read from files
+char version[]                      = MULTIMAG_VERSION;
 char cityState[MAXPATHBUFLEN]       = "Columbia, MO, USA";
 char callSign[MAXPATHBUFLEN]        = "KD0EAG";
-char latLonElv[MAXPATHBUFLEN]       = "38.92241,-92.29776,758'";
+char latLonElv[MAXPATHBUFLEN]       = "38.92241,-92.29776,228.90m";
 char freqStd[MAXPATHBUFLEN]         = "";
 char nodeNum[MAXPATHBUFLEN]         = "";
-char sysTem[MAXPATHBUFLEN]          = "";;
-char metadata[MAXPATHBUFLEN]        = "";;
-char dataTyp[MAXPATHBUFLEN]         = "";;
+char sysTem[MAXPATHBUFLEN]          = "";
+char metadata[MAXPATHBUFLEN]        = "";
+char dataTyp[MAXPATHBUFLEN]         = "";
 char rollOverTime[UTCBUFLEN]        = "00:00";
 char sitePrefix[SITEPREFIXLEN]      = "SITEPREFIX";
 char gridSqr[GRIDSQRLEN]            = "EM38uw";
@@ -50,6 +51,9 @@ char outFileName[MAXPATHBUFLEN]     = "";
 char configFilePath[MAXPATHBUFLEN]  = "./";
 char configFileName[MAXPATHBUFLEN]  = "config/config.json";
 //volatile int alarm_fired;
+
+char outputPipeName[MAXPATHBUFLEN] = "/home/web/wsroot/pipein.fifo";
+char inputPipeName[MAXPATHBUFLEN] = "/home/web/wsroot/pipeout.fifo";
 
 #define SIGTERM_MSG "\nSIGTERM received.\n"
 #define SIGINT_MSG "\nSIGINT received.\n"
@@ -139,7 +143,7 @@ int main(int argc, char** argv)
     int i;
     pList p;
     int rv = 0;
- 
+
     catch_sigterm();
     catch_sigint();
     // Set default parameters
@@ -151,6 +155,7 @@ int main(int argc, char** argv)
     buildOutputfileName(&p);
 
 //    openLogs(&p);
+    openUIPipes(&p);
     switch(p.modeOutputFlag)
     {
         case 0:

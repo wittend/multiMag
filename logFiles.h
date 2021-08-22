@@ -15,9 +15,11 @@
 char *logHeader(int argc, char **argv, pList *p);
 int readConfig(pList *p);
 int openLogs(pList *p);
+int openUIPipes(pList *p);
 int setupDefaults(pList *p);
 void buildOutputfileName(pList *p);
 int buildOutputFilePath(pList *p);
 int setOutputFileRoot(pList *p, char *outPath);
+//int setOutputFileRoot(pList *p);
 
 #endif  // LOGFILES_h
