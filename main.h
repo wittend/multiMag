@@ -24,12 +24,12 @@
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <pthread.h>
-#ifdef ODROID_N2
-    #include <wiringPi.h>
-#endif
-#ifdef USE_BCM2835
-    #include <bcm2835.h>
-#endif
+//#ifdef ODROID_N2
+//    #include <wiringPi.h>
+//#endif
+//#ifdef USE_BCM2835
+//    #include <bcm2835.h>
+//#endif
 #include "rm3100.h"
 #include "mcp9808.h"
 //#include "logFiles.h"
@@ -40,8 +40,8 @@
 #define MAXVALLEN   64
 
 #define MAXVERSIONLEN       30
-#define MULTIMAG_VERSION   "0.0.0"
-
+#define MULTIMAG_VERSION    "0.0.1"
+ 
 #define MAXTHREADS          10
 #define UTCBUFLEN           64
 #define MAXPATHBUFLEN       1500

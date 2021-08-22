@@ -31,23 +31,23 @@ struct pStruct *jsparams = NULL;
 //------------------------------------------
 //char version[MAXVERSIONLEN]                    = MULTIMAG_VERSION;
 // variables to hold metadata read from files
-char cityState[MAXPATHBUFLEN]       = "";
-char callSign[MAXPATHBUFLEN]        = "";
-char latLonElv[MAXPATHBUFLEN]       = "";
+char cityState[MAXPATHBUFLEN]       = "Columbia, MO, USA";
+char callSign[MAXPATHBUFLEN]        = "KD0EAG";
+char latLonElv[MAXPATHBUFLEN]       = "38.92241,-92.29776,758'";
 char freqStd[MAXPATHBUFLEN]         = "";
 char nodeNum[MAXPATHBUFLEN]         = "";
-char sysTem[MAXPATHBUFLEN];
-char metadata[MAXPATHBUFLEN];
-char dataTyp[MAXPATHBUFLEN];
+char sysTem[MAXPATHBUFLEN]          = "";;
+char metadata[MAXPATHBUFLEN]        = "";;
+char dataTyp[MAXPATHBUFLEN]         = "";;
 char rollOverTime[UTCBUFLEN]        = "00:00";
 char sitePrefix[SITEPREFIXLEN]      = "SITEPREFIX";
-char gridSqr[GRIDSQRLEN]            = "EM38uw";     //"XXyyzz";
+char gridSqr[GRIDSQRLEN]            = "EM38uw";
 
 char baseFileFolder[FOLDERNAMELEN]  = "/PSWS";
-char baseFilePath[MAXPATHBUFLEN]    = "";
+char baseFilePath[MAXPATHBUFLEN]    = "/home/dave";
 char outFilePath[MAXPATHBUFLEN]     = "";
 char outFileName[MAXPATHBUFLEN]     = "";
-char configFilePath[MAXPATHBUFLEN]  = "";
+char configFilePath[MAXPATHBUFLEN]  = "./";
 char configFileName[MAXPATHBUFLEN]  = "config/config.json";
 //volatile int alarm_fired;
 
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
     int i;
     pList p;
     int rv = 0;
-
+ 
     catch_sigterm();
     catch_sigint();
     // Set default parameters
