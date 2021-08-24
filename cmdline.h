@@ -15,7 +15,7 @@
 //------------------------------------------
 // Prototypes
 //------------------------------------------
-int setupDefaults(pList *p);
+//int setupDefaults(pList *p);
 int setLogRollOver(pList *p, char *rollTime);
 int getCommandLine(int argc, char** argv, pList *p);
 

@@ -146,15 +146,26 @@ typedef struct tag_pList
     int y_gain;
     int z_gain;
 
+    char *city;
+    char *state;
+    char *country;
+    char *postalcode;
+    char *gridSqr;
+    char *lattitude;
+    char *longitude;
+    char *elevation;
+    char *sitePrefix;
+    char *logOutputTime;
+
+
     char *Version;
+    char *rollOverTime;
     char *baseFilePath;
     char *outputFilePath;
     char *outputFileName;
     char *pipeInPath;
     char *pipeOutPath;
-    char *gridSqr;
-    char *sitePrefix;
-    char *logOutputTime;
+    char *system;
     struct pStruct **jsParams;
 } pList;
 

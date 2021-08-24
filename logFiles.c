@@ -153,7 +153,32 @@ char *logHeader(int argc, char **argv, pList *p)
 int openLogs(pList *p)
 {
     int rv = 0;
+
+    if(p->outfp == 0)
+    {
+        buildOutputFilePath(p);
+        if((p->outfp = fopen(p->outputFilePath, "a+"))!= NULL)
+        {
+            printf("\nLog File: \n", p->outputFilePath);
+        }
+        else
+        {
+            perror("\nLog File: ");
+        }
+        rv = 0;
+    }
     return rv;
+}
+
+//------------------------------------------
+// openLogs()
+//------------------------------------------
+void closeLogs(pList *p)
+{
+    if(p->outfp != stdout)
+    {
+        fclose(p->outfp);
+    }
 }
 
 ////------------------------------------------
@@ -162,28 +187,32 @@ int openLogs(pList *p)
 //int setupDefaults(pList *p)
 //{
 //    int rv = 0;
-//    
+//
 //    if(p != NULL)
 //    {
-//        memset(p, 0, sizeof(pList));
-////        p->version          = version;
-//        p->numThreads       = 2;
-//        p->threadOffsetUS   = 150;
-//        p->i2cBusNumber     = 1;
-//        p->i2c_fd           = 0;
-//        p->modeOutputFlag   = 0;
-//        p->outputFilePath   = NULL;
-//        p->outputFileName   = NULL;
-//        p->gridSqr          = gridSqr;
-//        p->sitePrefix       = sitePrefix;
-//
+//        p->numThreads       =   2;
+//        p->threadOffsetUS   =   150;
+//        p->i2cBusNumber     =   1;
+//        p->i2c_fd           =   0;
+//        p->modeOutputFlag   =   0;
+//        p->baseFilePath     =   "/PSWS";
+//        p->outputFilePath   =   "/Srawdata";
+//        p->outputFileName   =   "";
+//        p->pipeInPath       =   "/tmp/multiMag_pipeout.fifo";
+//        p->pipeOutPath      =   "/tmp/multiMag_pipein.fifo";
+//        p->rollOverTime     =   "00:00";
+//        p->gridSqr          =   "EM38uw";
+//        p->sitePrefix       =   "N0000023";
+//        p->city             =   "Columbia";
+//        p->state            =   "Missouri";
+//        p->country          =   "USA";
+//        p->postalcode       =   "65201";
+//        p->lattitude        =   "38.92241";
+//        p->longitude        =   "-92.29776";
+//        p->elevation        =   "228.90m";
+//        p->system           =   "";
 //    }
-//    else
-//    {
-//        rv = 1;
-//    }      
-//    return rv;
-//}
+//};
 //
 //------------------------------------------
 //  buildOutputfileName()
@@ -254,7 +283,7 @@ int openUIPipes(pList *p)
     int rv = 0;
     if(p->useOutputPipe = TRUE)
     {
-        // Notide that fdPipeOut and fdPipeIn are intentionally reversed.
+        // Note that fdPipeOut and fdPipeIn are intentionally reversed.
         if(!(p->fdPipeOut = open(p->pipeInPath, O_WRONLY | O_CREAT)))
         {
             perror("Open PIPE Out failed: ");
@@ -269,4 +298,22 @@ int openUIPipes(pList *p)
         }
     }
     return rv;
+}
+
+//------------------------------------------
+// closeUIPipes()
+//------------------------------------------
+void closeUIPipes(pList *p)
+{
+    // Note that fdPipeOut and fdPipeIn are intentionally reversed.
+    if(p->fdPipeOut != 0)
+    {
+        close(p->fdPipeOut);
+        p->fdPipeOut = 0;
+    }
+    if(p->fdPipeIn != 0)
+    {
+        close(p->fdPipeIn);
+        p->fdPipeIn = 0;
+    }
 }

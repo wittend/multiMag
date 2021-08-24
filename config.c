@@ -17,8 +17,7 @@
 extern char configFileName[MAXPATHBUFLEN];
 int id = 1;
 
-static char *keyWords[] =
-{
+static char *keyWords[] = {
     "numThreads",
     "threadOffsetUS",
     "i2cBusNumber",
@@ -27,9 +26,20 @@ static char *keyWords[] =
     "baseFilePath",
     "outputFilePath",
     "outputFileName",
+    "inputPipeName",
+    "outputPipeName",
+    "rollOverTime",
     "gridSqr",
     "sitePrefix",
-     NULL
+    "city",
+    "state",
+    "country",
+    "postalCode",
+    "lattitude",
+    "longitude",
+    "elevation",
+    "system",
+    NULL
 };
 
 extern struct pStruct *jsparams;

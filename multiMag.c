@@ -106,6 +106,39 @@ void catch_sigint()
 }
 
 //------------------------------------------
+// setupDefaults()
+//------------------------------------------
+int setupDefaults(pList *p)
+{
+    int rv = 0;
+
+    if(p != NULL)
+    {
+        p->numThreads       =   2;
+        p->threadOffsetUS   =   150;
+        p->i2cBusNumber     =   1;
+        p->i2c_fd           =   0;
+        p->modeOutputFlag   =   0;
+        p->baseFilePath     =   "/PSWS";
+        p->outputFilePath   =   "/Srawdata";
+        p->outputFileName   =   "";
+        p->pipeInPath       =   "/tmp/multiMag_pipeout.fifo";
+        p->pipeOutPath      =   "/tmp/multiMag_pipein.fifo";
+        p->rollOverTime     =   "00:00";
+        p->gridSqr          =   "EM38uw";
+        p->sitePrefix       =   "N0000023";
+        p->city             =   "Columbia";
+        p->state            =   "Missouri";
+        p->country          =   "USA";
+        p->postalcode       =   "65201";
+        p->lattitude        =   "38.92241";
+        p->longitude        =   "-92.29776";
+        p->elevation        =   "228.90m";
+        p->system           =   "";
+    }
+};
+
+//------------------------------------------
 // i2cReader()
 //------------------------------------------
 void *i2cReaderThread(void *thread_id)
@@ -190,5 +223,7 @@ int main(int argc, char** argv)
     //printf("pthread_exit(NULL)\n");
     pthread_exit(NULL);
     hashDeleteAll();
+    closeLogs(&p);
+    closeUIPipes(&p);
     return 0;
 }

@@ -29,36 +29,36 @@ extern char outFileName[MAXPATHBUFLEN];
 extern char configFilePath[MAXPATHBUFLEN];
 extern char configFileName[MAXPATHBUFLEN];
 
-//------------------------------------------
-// setupDefaults()
-//------------------------------------------
-int setupDefaults(pList *p)
-{
-    int rv = 0;
-    
-    if(p != NULL)
-    {
-        memset(p, 0, sizeof(pList));
-//        p->version          = version;
-        p->printParamFlg    = FALSE;
-        p->numThreads       = 2;
-        p->threadOffsetUS   = 150;
-        p->i2cBusNumber     = 1;
-        p->i2c_fd           = 0;
-        p->modeOutputFlag   = 0;
-        p->outputFilePath   = NULL;
-        p->outputFileName   = NULL;
-        p->gridSqr          = gridSqr;
-        p->sitePrefix       = sitePrefix;
-        p->logOutputTime    = rollOverTime;
-        p->jsParams         = NULL;
-    }
-    else
-    {
-        rv = 1;
-    }      
-    return rv;
-}
+////------------------------------------------
+//// setupDefaults()
+////------------------------------------------
+//int setupDefaults(pList *p)
+//{
+//    int rv = 0;
+//
+//    if(p != NULL)
+//    {
+//        memset(p, 0, sizeof(pList));
+////        p->version          = version;
+//        p->printParamFlg    = FALSE;
+//        p->numThreads       = 2;
+//        p->threadOffsetUS   = 150;
+//        p->i2cBusNumber     = 1;
+//        p->i2c_fd           = 0;
+//        p->modeOutputFlag   = 0;
+//        p->outputFilePath   = NULL;
+//        p->outputFileName   = NULL;
+//        p->gridSqr          = gridSqr;
+//        p->sitePrefix       = sitePrefix;
+//        p->logOutputTime    = rollOverTime;
+//        p->jsParams         = NULL;
+//    }
+//    else
+//    {
+//        rv = 1;
+//    }
+//    return rv;
+//}
 
 //------------------------------------------
 // getCommandLine()
