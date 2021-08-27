@@ -5,13 +5,16 @@
 // 
 // Author:      David M. Witten II, KD0EAG
 // Date:        Jan 30, 2021
+// Date:        Aug 27, 2021
 // License:     GPL 3.0
 //=========================================================================
 #include "main.h"
 #include "logFiles.h"
 #include "config.h"
 
-int gflag = 1;
+//int gflag = 1;
+#define USE_SEMAPHORE   0
+#define READ_I2C        0
 
 ////------------------------------------------
 //// struct pStruct
@@ -57,6 +60,11 @@ char inputPipeName[MAXPATHBUFLEN] = "/home/web/wsroot/pipeout.fifo";
 
 #define SIGTERM_MSG "\nSIGTERM received.\n"
 #define SIGINT_MSG "\nSIGINT received.\n"
+
+#if( USE_SEMAPHORE )
+// Semaphore mutex
+sem_t mutex;
+#endif
 
 //------------------------------------------
 // sig_term_handler()
@@ -116,6 +124,7 @@ int setupDefaults(pList *p)
     {
         p->numThreads       =   2;
         p->threadOffsetUS   =   150;
+        p->threadCadenceUS  =   500;
         p->i2cBusNumber     =   1;
         p->i2c_fd           =   0;
         p->modeOutputFlag   =   0;
@@ -146,21 +155,31 @@ void *i2cReaderThread(void *thread_id)
     int *id = (int *) thread_id;
     char utcStr[UTCBUFLEN] = "";
     struct tm *utcTime = getUTC();
-    
-    //while(gflag == 1)
-    //{
-    //    usleep(10);                   
-    //}
-    while(1) 
-    {
-        struct timeval tv;
+    struct timeval tv;
 
+    while(1)
+    {
+        //struct timeval tv;
+#if( USE_SEMAPHORE )
+
+        // Wait for Semaphore.
+        sem_wait(&mutex);
+
+        usleep(1000 * 1000);                   // 1 second
+        gettimeofday(&tv, NULL);
+        printf("Task %u: S: %lu, uS: %lu\n", *id, tv.tv_sec, tv.tv_usec);
+
+        // Reset Semaphore.
+        sem_post(&mutex);
+
+#else
         //catch_sigterm();
         usleep(1000 * 1000);                   // 1 second
   //      sched_yield();
   //      clock_nanosleep()
         gettimeofday(&tv, NULL);
         printf("Task %u: S: %lu, uS: %lu\n", *id, tv.tv_sec, tv.tv_usec);
+#endif
     }
     pthread_exit(NULL);
 }
@@ -179,11 +198,15 @@ int main(int argc, char** argv)
 
     catch_sigterm();
     catch_sigint();
-    // Set default parameters
+
+    // Get default runtime parameters .
     setupDefaults(&p);
 
-    getCommandLine(argc, argv, &p);
+    // Get cunfiguration file overrides of runtime parameters .
     readConfig(&p);
+
+    // Get command line overrides of runtime parameters .
+    getCommandLine(argc, argv, &p);
     buildOutputFilePath(&p);
     buildOutputfileName(&p);
 
@@ -196,11 +219,19 @@ int main(int argc, char** argv)
         default:
             break;
     }
+    // Display running parameters.
     if(p.printParamFlg)
     {
         printParams(&p);
     }
-    for(i = 0; i < p.numThreads; i++) 
+
+#if( USE_SEMAPHORE )
+    // Create Semaphore.
+    sem_init(&mutex, 0, 1);
+#endif
+
+    // Create Threads.
+    for(i = 0; i < p.numThreads; i++)
     {
         printf("Creating i2cReader thread %u\n", i);
         rv = pthread_create(&tids[i], NULL, i2cReaderThread, &ids[i]);
@@ -211,16 +242,40 @@ int main(int argc, char** argv)
         }
         usleep(p.threadOffsetUS);                   // Default 150 uS
     }
-    //gflag = 1;
-    for(i = 0; i < p.numThreads; i++) 
+
+    // 'Join' Threads.
+    for(i = 0; i < p.numThreads; i++)
     {
         pthread_join(tids[i], NULL);
     }
-    //printf("Waiting...\n");
-    //usleep(1000000);
-    //printf("gflag = 0 ...\n");
-    //gflag = 0;
-    //printf("pthread_exit(NULL)\n");
+
+#if( USE_SEMAPHORE )
+
+    int id = p.numThreads;
+    while(1)
+    {
+        if(id > 0)
+        {
+            sem_post(&mutex);
+            i--;
+            if (i < 1)
+            {
+                i = p.numThreads;
+            }
+        }
+        usleep(p.threadCadenceUS);
+   }
+
+#endif
+
+#if( USE_SEMAPHORE )
+
+    // Destroy Semaphore
+    sem_destroy(&mutex);
+    printf("Semaphore destroyed. Shutting down...\n");
+
+#endif
+
     pthread_exit(NULL);
     hashDeleteAll();
     closeLogs(&p);

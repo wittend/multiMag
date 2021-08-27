@@ -22,6 +22,7 @@ LOADLIBES =
 LDLIBS =
 GPERFFLAGS = --language=ANSI-C
 PTHREAD = -pthread
+SEMAPHORES = -lpthread -lrt
 
 TARGET = multiMag
 
@@ -30,10 +31,10 @@ RM = rm -f
 all: release
 
 debug: $(OBJS)
-	$(CC) -o $(TARGET) $(DEBUG) $(PTHREAD) $(CFLAGS) $(OBJS) $(LIBS)
+	$(CC) -o $(TARGET) $(DEBUG) $(PTHREAD) $(SEMAPHORES) $(CFLAGS) $(OBJS) $(LIBS)
 
 release: $(OBJS)
-	$(CC) -o $(TARGET) $(PTHREAD) $(CFLAGS) $(OBJS) $(LIBS)
+	$(CC) -o $(TARGET) $(PTHREAD) $(SEMAPHORES) $(CFLAGS) $(OBJS) $(LIBS)
     
 clean:
 	$(RM) $(OBJS) $(TARGET) config.json

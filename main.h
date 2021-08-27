@@ -6,6 +6,10 @@
 //
 // Author:      David M. Witten II, KD0EAG
 // Date:        Jan 30, 2021
+// Date:        Jan 31, 2021
+// Date:        Jun 16, 2021
+// Date:        Jul 16, 2021
+// Date:        Aug 27, 2021
 // License:     GPL 3.0
 //=========================================================================
 #ifndef MULTIMAGMAIN_h
@@ -23,13 +27,8 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
+#include <semaphore.h>
 #include <pthread.h>
-//#ifdef ODROID_N2
-//    #include <wiringPi.h>
-//#endif
-//#ifdef USE_BCM2835
-//    #include <bcm2835.h>
-//#endif
 #include "rm3100.h"
 #include "mcp9808.h"
 //#include "logFiles.h"
@@ -61,54 +60,6 @@ struct pStruct
 };
 
 //------------------------------------------
-// Parameter List struct
-//------------------------------------------
-//typedef struct tag_pList
-//{
-//    int SBCType;
-//    int boardType;
-//    int boardMode;
-//    int doBistMask;
-//    int buildLogPath;
-//
-//    int cc_x;
-//    int cc_y;
-//    int cc_z;
-//
-//    int x_gain;
-//    int y_gain;
-//    int z_gain;
-//
-//    int TMRCRate;
-//    int CMMSampleRate;
-//
-//    int samplingMode;
-//
-//    int NOSRegValue;
-//
-//    int DRDYdelay;
-//
-//    int readBackCCRegs;
-//    int magRevId;
-//
-//    int hideRaw;
-//    int i2cBusNumber;
-//    int i2c_fd;
-//    int jsonFlag;
-//
-//    int localTempOnly;
-//    int localTempAddr;
-//
-//    int magnetometerOnly;
-//    int magnetometerAddr;
-//
-//    int remoteTempOnly;
-//    int remoteTempAddr;
-//
-//} pList;
-
-
-//------------------------------------------
 // types
 //------------------------------------------
 typedef struct tag_pList
@@ -116,6 +67,7 @@ typedef struct tag_pList
     int printParamFlg;
     int numThreads;
     int threadOffsetUS;
+    int threadCadenceUS;
     int i2cBusNumber;
     int i2c_fd;
     int i2cMUXAddr;
@@ -156,7 +108,6 @@ typedef struct tag_pList
     char *elevation;
     char *sitePrefix;
     char *logOutputTime;
-
 
     char *Version;
     char *rollOverTime;

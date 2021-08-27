@@ -2,9 +2,8 @@
 // config.c
 // 
 //  JSON configuration routines for multiMag magnetometer support.
-//
+// Data:
 // Author:      David M. Witten II, KD0EAG
-// Date:        Jan 31, 2021
 // License:     GPL 3.0
 //=========================================================================
 #include "config.h"
