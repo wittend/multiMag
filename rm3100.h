@@ -98,6 +98,7 @@ typedef enum
 #define CC_200      0xC8        // 200 decimal (default)
 #define CC_300      0x12C       // 300 decimal
 #define CC_400      0x190       // 400 decimal
+#define CC_800      0x320       // 800 decimal
 
 //-------------------------------------------
 // Gain values (decimal)
@@ -107,6 +108,7 @@ typedef enum
 #define GAIN_75     75
 #define GAIN_113    113
 #define GAIN_150    150
+#define GAIN_300    300
 
 //-------------------------------------------------------------------------------------------------
 // CMM Update Rates

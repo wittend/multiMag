@@ -33,6 +33,7 @@
 #include "mcp9808.h"
 //#include "logFiles.h"
 #include "utilRoutines.h"
+//#include "sensorRoutines.h"
 #include "uthash/uthash.h"
 
 #define MAXKEYLEN           64
@@ -47,6 +48,7 @@
 #define FOLDERNAMELEN       1500
 #define SITEPREFIXLEN       32
 #define GRIDSQRLEN          7
+#define NOT_USED            -1
 
 //------------------------------------------
 // struct pStruct
@@ -64,6 +66,13 @@ struct pStruct
 //------------------------------------------
 typedef struct tag_pList
 {
+    // from runMag - investigate
+    int magnetometerAddr;
+    int localTempAddr;
+    int remoteTempAddr;
+    int magRevId;
+
+    // multiMag from here on...
     int printParamFlg;
     int numThreads;
     int threadOffsetUS;

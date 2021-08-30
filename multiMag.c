@@ -13,20 +13,10 @@
 #include "config.h"
 
 //int gflag = 1;
-#define USE_SEMAPHORE   0
+#define USE_SEMAPHORE   1
 #define READ_I2C        0
 
-////------------------------------------------
-//// struct pStruct
-////------------------------------------------
-//struct pStruct
-//{
-//    int id;                    /* key */
-//    char key[MAXKEYLEN];
-//    char val[MAXVALLEN];
-//    UT_hash_handle hh;         /* makes this structure hashable */
-//};
-
+// Global struct for parsing JSON
 struct pStruct *jsparams = NULL;
 
 //------------------------------------------
@@ -61,10 +51,6 @@ char inputPipeName[MAXPATHBUFLEN] = "/home/web/wsroot/pipeout.fifo";
 #define SIGTERM_MSG "\nSIGTERM received.\n"
 #define SIGINT_MSG "\nSIGINT received.\n"
 
-#if( USE_SEMAPHORE )
-// Semaphore mutex
-sem_t mutex;
-#endif
 
 //------------------------------------------
 // sig_term_handler()
@@ -113,8 +99,10 @@ void catch_sigint()
     sigaction(SIGINT, &_sigact, NULL);
 }
 
+
 //------------------------------------------
 // setupDefaults()
+// All Default values should be set here.
 //------------------------------------------
 int setupDefaults(pList *p)
 {
@@ -122,12 +110,45 @@ int setupDefaults(pList *p)
 
     if(p != NULL)
     {
+        // from runMag - investigate
+        p->magnetometerAddr =   0x20;
+        p->localTempAddr    =   0x18;
+        p->remoteTempAddr   =   0x19;
+
+        p->magRevId         =   0;
+        p->doBistMask       =   0;             // ?
+        p->outDelay         =   0;
+//        p->showParameters;    // now printParamFlg
+//?       p->singleRead;        // Is this useful?
+        p->tsMilliseconds;                 // ?
+        p->showTotal        =   FALSE;              // ?
+        p->logOutput        =   FALSE;
+        p->useOutputPipe    =   FALSE;
+        p->TMRCRate;
+        p->CMMSampleRate;
+        p->samplingMode;
+        p->NOSRegValue;
+        p->cc_x;
+        p->cc_y;
+        p->cc_z;
+
+        p->x_gain;
+        p->y_gain;
+        p->z_gain;
+
+        // multiMag from here on...
+        p->printParamFlg    =   FALSE;
         p->numThreads       =   2;
-        p->threadOffsetUS   =   150;
-        p->threadCadenceUS  =   500;
+        p->threadCadenceUS  =   1000000;
+        p->threadOffsetUS   =   150000;
         p->i2cBusNumber     =   1;
+        p->i2cMUXAddr       =   NOT_USED;
         p->i2c_fd           =   0;
+        p->outfp            =   NULL;
+        p->fdPipeIn         =   NOT_USED;
+        p->fdPipeOut        =   NOT_USED;
         p->modeOutputFlag   =   0;
+
         p->baseFilePath     =   "/PSWS";
         p->outputFilePath   =   "/Srawdata";
         p->outputFileName   =   "";
@@ -147,6 +168,11 @@ int setupDefaults(pList *p)
     }
 };
 
+#if( USE_SEMAPHORE )
+// Semaphore mutex
+sem_t mutexp[MAXTHREADS] = {};
+#endif
+
 //------------------------------------------
 // i2cReader()
 //------------------------------------------
@@ -163,14 +189,14 @@ void *i2cReaderThread(void *thread_id)
 #if( USE_SEMAPHORE )
 
         // Wait for Semaphore.
-        sem_wait(&mutex);
+        sem_wait(&mutexp[*id]);
 
-        usleep(1000 * 1000);                   // 1 second
+        usleep(1000 * 1000);                  // 1 second
         gettimeofday(&tv, NULL);
         printf("Task %u: S: %lu, uS: %lu\n", *id, tv.tv_sec, tv.tv_usec);
 
         // Reset Semaphore.
-        sem_post(&mutex);
+        sem_post(&mutexp[*id]);
 
 #else
         //catch_sigterm();
@@ -184,6 +210,8 @@ void *i2cReaderThread(void *thread_id)
     pthread_exit(NULL);
 }
 
+
+
 //------------------------------------------
 // main()
 // 
@@ -193,6 +221,7 @@ int main(int argc, char** argv)
     pthread_t tids[MAXTHREADS];
     int ids[MAXTHREADS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     int i;
+    int idd;
     pList p;
     int rv = 0;
 
@@ -203,7 +232,8 @@ int main(int argc, char** argv)
     setupDefaults(&p);
 
     // Get cunfiguration file overrides of runtime parameters .
-    readConfig(&p);
+    // readConfig(&p);
+    // readConfigFromFile(&p, "./config/config.json");
 
     // Get command line overrides of runtime parameters .
     getCommandLine(argc, argv, &p);
@@ -219,20 +249,21 @@ int main(int argc, char** argv)
         default:
             break;
     }
+
     // Display running parameters.
     if(p.printParamFlg)
     {
         printParams(&p);
     }
 
-#if( USE_SEMAPHORE )
-    // Create Semaphore.
-    sem_init(&mutex, 0, 1);
-#endif
 
     // Create Threads.
     for(i = 0; i < p.numThreads; i++)
     {
+#if( USE_SEMAPHORE )
+        // Create Semaphore.
+        sem_init(&mutexp[i], 0, 1);
+#endif
         printf("Creating i2cReader thread %u\n", i);
         rv = pthread_create(&tids[i], NULL, i2cReaderThread, &ids[i]);
         if(rv) 
@@ -251,16 +282,17 @@ int main(int argc, char** argv)
 
 #if( USE_SEMAPHORE )
 
-    int id = p.numThreads;
+    idd = p.numThreads;
     while(1)
     {
-        if(id > 0)
+        if(idd > 0)
         {
-            sem_post(&mutex);
+            printf("Posting flag for semaphore %u\n", idd);
+            sem_post(&mutexp[idd]);
             i--;
-            if (i < 1)
+            if (idd < 1)
             {
-                i = p.numThreads;
+                idd = p.numThreads;
             }
         }
         usleep(p.threadCadenceUS);
@@ -271,7 +303,13 @@ int main(int argc, char** argv)
 #if( USE_SEMAPHORE )
 
     // Destroy Semaphore
-    sem_destroy(&mutex);
+
+    idd = p.numThreads;
+    while(idd)
+    {
+        sem_destroy(&mutexp[idd]);
+        idd--;
+    }
     printf("Semaphore destroyed. Shutting down...\n");
 
 #endif

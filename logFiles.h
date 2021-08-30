@@ -18,10 +18,8 @@ int openLogs(pList *p);
 void closeLogs(pList *p);
 int openUIPipes(pList *p);
 void closeUIPipes(pList *p);
-//int setupDefaults(pList *p);
 void buildOutputfileName(pList *p);
 int buildOutputFilePath(pList *p);
 int setOutputFileRoot(pList *p, char *outPath);
-//int setOutputFileRoot(pList *p);
 
 #endif  // LOGFILES_h

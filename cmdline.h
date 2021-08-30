@@ -16,9 +16,9 @@
 //------------------------------------------
 // Prototypes
 //------------------------------------------
-//int setupDefaults(pList *p);
+void showSettings(pList *p);
+int setOutputFilePath(pList *p, char *outPath);
 int setLogRollOver(pList *p, char *rollTime);
 int getCommandLine(int argc, char** argv, pList *p);
-
 
 #endif // MULTIMAG_CMDLINE_h
