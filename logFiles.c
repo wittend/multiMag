@@ -159,7 +159,7 @@ int openLogs(pList *p)
         buildOutputFilePath(p);
         if((p->outfp = fopen(p->outputFilePath, "a+"))!= NULL)
         {
-            printf("\nLog File: \n", p->outputFilePath);
+            printf("\nLog File: %s\n", p->outputFilePath);
         }
         else
         {
@@ -287,13 +287,13 @@ int openUIPipes(pList *p)
         if(!(p->fdPipeOut = open(p->pipeInPath, O_WRONLY | O_CREAT)))
         {
             perror("Open PIPE Out failed: ");
-            fprintf(stderr, p->pipeInPath);
+            fprintf(stderr, "%s\n", p->pipeInPath);
             exit(1);
         }
         if(!(p->fdPipeIn = open(p->pipeOutPath, O_RDONLY | O_CREAT)))
         {
             perror("Open PIPE In failed: ");
-            fprintf(stderr, p->pipeOutPath);
+            fprintf(stderr, "%s\n", p->pipeOutPath);
             exit(1);
         }
     }
