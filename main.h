@@ -134,7 +134,6 @@ typedef struct tag_pList
 //------------------------------------------
 int main(int argc, char** argv);
 void *i2cReader(void *thread_id);
-int getCommandLine(int argc, char** argv, pList *p);
 int setupDefaults(pList *p);
 
 #endif  // MULTIMAGMAIN_h

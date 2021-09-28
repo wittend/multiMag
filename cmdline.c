@@ -124,10 +124,10 @@ void showSettings(pList *p)
 
 //    fprintf(stdout, "\nVersion = %s\n", version);
     fprintf(stdout, "\nCurrent Parameters:\n\n");
-    if(!p->magRevId)
-    {
-        getMagRev(p);
-    }
+//    if(!p->magRevId)
+//    {
+//        getMagRev(p);
+//    }
     fprintf(stdout, "   Magnetometer revision ID detected:          %i (dec)\n",    p->magRevId);
 //    fprintf(stdout, "   Log output path:                            %s\n",          p->outFilePath ? "TRUE" : "FALSE");
     fprintf(stdout, "   Log output:                                 %s\n",          p->logOutput ? "TRUE" : "FALSE");

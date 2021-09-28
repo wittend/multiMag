@@ -240,7 +240,7 @@ void buildOutputfileName(pList *p)
 }
 
 //------------------------------------------
-//  buildGrapeFilePath()
+//  buildOutputFilePath()
 //------------------------------------------
 int buildOutputFilePath(pList *p)
 {

@@ -11,6 +11,7 @@
 #include "main.h"
 #include "logFiles.h"
 #include "config.h"
+#include "cmdline.h"
 
 //int gflag = 1;
 #define USE_SEMAPHORE   1
@@ -230,9 +231,8 @@ int main(int argc, char** argv)
 
     // Get default runtime parameters .
     setupDefaults(&p);
-
     // Get cunfiguration file overrides of runtime parameters .
-    // readConfig(&p);
+    readConfig(&p);
     // readConfigFromFile(&p, "./config/config.json");
 
     // Get command line overrides of runtime parameters .
@@ -254,8 +254,8 @@ int main(int argc, char** argv)
     if(p.printParamFlg)
     {
         printParams(&p);
+        showSettings(&p);
     }
-
 
     // Create Threads.
     for(i = 0; i < p.numThreads; i++)
