@@ -13,8 +13,6 @@
 #define CONFIGROUTINES_h
 
 #include "main.h"
-//#include "uthash/uthash.h"
-//#include "jsmn/jsmn.h"
 
 #define JSONBUFLEN          1025
 #define JSONBUFTOKENCOUNT   1024

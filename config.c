@@ -51,12 +51,13 @@ void showSettings(pList *p)
     char pathStr[128] = "";
     snprintf(pathStr, sizeof(pathStr), "/dev/i2c-%i", p->i2cBusNumber);
 
-//    fprintf(stdout, "\nVersion = %s\n", version);
-    fprintf(stdout, "\nCurrent Parameters:\n\n");
+    fprintf(stdout, "\n  Working Parameters:\n");
+    fprintf(stdout, "  -------------------\n");
 //    if(!p->magRevId)
 //    {
 //        getMagRev(p);
 //    }
+    fprintf(stdout, "   Software Version                            %s\n",          p->Version);
     fprintf(stdout, "   Magnetometer revision ID detected:          %i (dec)\n",    p->magRevId);
     fprintf(stdout, "   Log output:                                 %s\n",          p->logOutput ? "TRUE" : "FALSE");
     //fprintf(stdout, "   Log Rollover time:                          %s\n",          p->logOutputTime);
@@ -75,7 +76,7 @@ void showSettings(pList *p)
     fprintf(stdout, "   Device sampling mode:                       %s\n",          p->samplingMode     ? "CONTINUOUS" : "POLL");
     fprintf(stdout, "   Cycle counts by vector:                     X: %3i (dec), Y: %3i (dec), Z: %3i (dec)\n", p->cc_x, p->cc_y, p->cc_z);
     fprintf(stdout, "   Gain by vector:                             X: %3i (dec), Y: %3i (dec), Z: %3i (dec)\n", p->x_gain, p->y_gain, p->z_gain);
-    fprintf(stdout, "   Software Loop Delay (uSec):                 %i (dec uSec)\n",    p->outDelay);
+    fprintf(stdout, "   Software Loop Delay (uSec):                 %2i (dec uSec)\n",    p->outDelay);
     fprintf(stdout, "   CMM sample rate:                            %2X (hex)\n",   p->CMMSampleRate);
     fprintf(stdout, "   TMRC reg value:                             %2X (hex)\n",   p->TMRCRate);
     fprintf(stdout, "   Local temperature address:                  %02X (hex)\n",  p->localTempAddr);
@@ -98,6 +99,8 @@ void printParams(pList* p)
     struct pStruct *s;
     int i = 0;
 
+    fprintf(stdout, "\n  Stored Parameters:\n");
+    fprintf(stdout, "  ------------------\n");
     for (s = jsparams; s != NULL; s = s->hh.next)
     {
         fprintf(stdout, "    id %4d: key: \"%s\", val: \"%s\"\n", s->id, s->key, s->val);

@@ -8,8 +8,6 @@
 // License:     GPL 3.0
 //=========================================================================
 #include "logFiles.h"
-//#include "jsmn/jsmn.h"
-//#include "uthash/uthash.h"
 
 //extern char version[MAXVERSIONLEN];
 
@@ -193,29 +191,21 @@ void buildOutputFileName(pList *p)
     strncpy(baseFilePath, "", 1);
     strncpy(baseFilePath, penv, MAXPATHBUFLEN - 1);
     strncat(baseFilePath, baseFileFolder, FOLDERNAMELEN - 1);
-//    p->baseFilePath = baseFilePath;
-//fprintf(stdout, "buildOutputFilePath(): [%s]\n", p->baseFilePath);
 
     strftime(utcStr, UTCBUFLEN, "%Y-%m-%dT%H%M%S", utcTime);
     strncpy((char *)outFileName, utcStr, UTCBUFLEN);
     strncat((char *)outFileName, "Z_", 3);
-    strncat((char *)outFileName, sitePrefix, SITEPREFIXLEN);
+    strncat((char *)outFileName, p->sitePrefix, SITEPREFIXLEN);
     strncat((char *)outFileName, "_N_", 4);
     strncat((char *)outFileName, p->gridSqr, 7);
     strncat((char *)outFileName, "_MGT.log", 9);
-//  printf("buildOutputfileName(): [%s][%s]\n", p->baseFilePath, p->outputFileName);
-//printf("In: %s\n", "buildOutputFileName()");
+
     strncat((char *)baseFilePath, "/", 2);
     strncat((char *)baseFilePath, outFileName, MAXPATHBUFLEN);
 
     p->outputFileName = outFileName;
 
-    //strncat(baseFilePath, outFileName, MAXPATHBUFLEN);
     p->outputFilePath = baseFilePath;
-printf("p->outputFilePath: %s\n", p->outputFilePath);
-//
-//fprintf(stdout,"buildOutputFileName(): [%s]\n", p->outputFileName);
-//fflush(stdout);
 }
 
 ////------------------------------------------

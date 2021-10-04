@@ -38,7 +38,7 @@ char rollOverTime[UTCBUFLEN]        = "00:00";
 char sitePrefix[SITEPREFIXLEN]      = "SITEPREFIX";
 char gridSqr[GRIDSQRLEN]            = "EM38uw";
 
-char baseFileFolder[FOLDERNAMELEN]  = "/PSWS";
+char baseFileFolder[FOLDERNAMELEN]  = "/PSWS/Srawdata";
 char baseFilePath[MAXPATHBUFLEN]    = "/home/dave";
 char outFilePath[MAXPATHBUFLEN]     = "";
 char outFileName[MAXPATHBUFLEN]     = "";
@@ -46,8 +46,8 @@ char configFilePath[MAXPATHBUFLEN]  = "./";
 char configFileName[MAXPATHBUFLEN]  = "config/config.json";
 //volatile int alarm_fired;
 
-char outputPipeName[MAXPATHBUFLEN] = "/home/web/wsroot/pipein.fifo";
-char inputPipeName[MAXPATHBUFLEN] = "/home/web/wsroot/pipeout.fifo";
+char outputPipeName[MAXPATHBUFLEN] = "/tmp/PSWS-pipein.fifo";
+char inputPipeName[MAXPATHBUFLEN]  = "/tmp/PSWS-pipeout.fifo";
 
 #define SIGTERM_MSG "\nSIGTERM received.\n"
 #define SIGINT_MSG "\nSIGINT received.\n"
@@ -119,25 +119,25 @@ int setupDefaults(pList *p)
         p->magRevId         =   0;
         p->doBistMask       =   0;             // ?
         p->outDelay         =   0;
-//        p->showParameters;    // now printParamFlg
 //?       p->singleRead;        // Is this useful?
         p->tsMilliseconds;                 // ?
         p->showTotal        =   FALSE;              // ?
         p->logOutput        =   FALSE;
         p->useOutputPipe    =   FALSE;
-        p->TMRCRate;
-        p->CMMSampleRate;
-        p->samplingMode;
-        p->NOSRegValue;
-        p->cc_x;
-        p->cc_y;
-        p->cc_z;
+        p->TMRCRate         =   0;
+        p->CMMSampleRate    =   0;
+        p->samplingMode     =   0;
+        p->NOSRegValue      =   0;
+        p->cc_x             =   0;
+        p->cc_y             =   0;
+        p->cc_z             =   0;
 
-        p->x_gain;
-        p->y_gain;
-        p->z_gain;
+        p->x_gain           =   0;
+        p->y_gain           =   0;
+        p->z_gain           =   0;
 
         // multiMag from here on...
+        p->Version          =   MULTIMAG_VERSION;
         p->printParamFlg    =   FALSE;
         p->numThreads       =   2;
         p->threadCadenceUS  =   1000000;
@@ -150,8 +150,8 @@ int setupDefaults(pList *p)
         p->fdPipeOut        =   NOT_USED;
         p->modeOutputFlag   =   0;
 
-        p->baseFilePath     =   "/PSWS";
-        p->outputFilePath   =   "/Srawdata";
+        p->baseFilePath     =   "/PSWS/Srawdata/";
+        p->outputFilePath   =   "";         //"/Srawdata";
         p->outputFileName   =   "";
         p->pipeInPath       =   "/tmp/multiMag_pipeout.fifo";
         p->pipeOutPath      =   "/tmp/multiMag_pipein.fifo";

@@ -36,6 +36,8 @@
 //#include "sensorRoutines.h"
 #include "uthash/uthash.h"
 
+#define USE_PIPES           TRUE
+
 #define MAXKEYLEN           64
 #define MAXVALLEN           64
 
@@ -87,6 +89,7 @@ typedef struct tag_pList
     int i2c_fd;
     int i2cMUXAddr;
     FILE *outfp;
+    FILE *infp;
     int  fdPipeIn;
     int  fdPipeOut;
 
