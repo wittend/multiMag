@@ -44,6 +44,53 @@ static char *keyWords[] = {
 extern struct pStruct *jsparams;
 
 //------------------------------------------
+// showSettings()
+//------------------------------------------
+void showSettings(pList *p)
+{
+    char pathStr[128] = "";
+    snprintf(pathStr, sizeof(pathStr), "/dev/i2c-%i", p->i2cBusNumber);
+
+//    fprintf(stdout, "\nVersion = %s\n", version);
+    fprintf(stdout, "\nCurrent Parameters:\n\n");
+//    if(!p->magRevId)
+//    {
+//        getMagRev(p);
+//    }
+    fprintf(stdout, "   Magnetometer revision ID detected:          %i (dec)\n",    p->magRevId);
+    fprintf(stdout, "   Log output:                                 %s\n",          p->logOutput ? "TRUE" : "FALSE");
+    //fprintf(stdout, "   Log Rollover time:                          %s\n",          p->logOutputTime);
+    fprintf(stdout, "   Log site prefix string:                     %s\n",          p->sitePrefix);
+    fprintf(stdout, "   Output file path:                           %s\n",          p->outputFilePath);
+#if (USE_PIPES)
+    fprintf(stdout, "   Log output to pipes:                        %s\n",          p->useOutputPipe ? "TRUE" : "FALSE");
+    fprintf(stdout, "   Input file path:                            %s\n",          p->pipeInPath);
+    fprintf(stdout, "   Output file path:                           %s\n",          p->pipeOutPath);
+#endif
+    fprintf(stdout, "   I2C bus number as integer:                  %i (dec)\n",    p->i2cBusNumber);
+    fprintf(stdout, "   I2C bus path as string:                     %s\n",          pathStr);
+    fprintf(stdout, "   Built in self test (BIST) value:            %02X (hex)\n",  p->doBistMask);
+    fprintf(stdout, "   NOS Register value:                         %02X (hex)\n",  p->NOSRegValue);
+//    fprintf(stdout, "   Post DRDY delay:                            %i (dec)\n",    p->DRDYdelay);
+    fprintf(stdout, "   Device sampling mode:                       %s\n",          p->samplingMode     ? "CONTINUOUS" : "POLL");
+    fprintf(stdout, "   Cycle counts by vector:                     X: %3i (dec), Y: %3i (dec), Z: %3i (dec)\n", p->cc_x, p->cc_y, p->cc_z);
+    fprintf(stdout, "   Gain by vector:                             X: %3i (dec), Y: %3i (dec), Z: %3i (dec)\n", p->x_gain, p->y_gain, p->z_gain);
+    fprintf(stdout, "   Software Loop Delay (uSec):                 %i (dec uSec)\n",    p->outDelay);
+    fprintf(stdout, "   CMM sample rate:                            %2X (hex)\n",   p->CMMSampleRate);
+    fprintf(stdout, "   TMRC reg value:                             %2X (hex)\n",   p->TMRCRate);
+    fprintf(stdout, "   Local temperature address:                  %02X (hex)\n",  p->localTempAddr);
+    fprintf(stdout, "   Remote temperature address:                 %02X (hex)\n",  p->remoteTempAddr);
+    fprintf(stdout, "   Magnetometer address:                       %02X {hex)\n",  p->magnetometerAddr);
+    fprintf(stdout, "   Show parameters:                            %s\n",          p->showParameters   ? "TRUE" : "FALSE");
+    fprintf(stdout, "   Return single magnetometer reading:         %s\n",          p->singleRead       ? "TRUE" : "FALSE");
+//    fprintf(stdout, "   Magnetometer configuation:                  %s\n",          (p->boardMode == LOCAL) ? "Local standalone" : "Extended with remote");
+    fprintf(stdout, "   Timestamp format:                           %s\n",          p->tsMilliseconds   ? "RAW"  : "UTCSTRING");
+    fprintf(stdout, "   Show total field:                           %s\n",          p->showTotal        ? "TRUE" : "FALSE");
+    fprintf(stdout, "\n");
+}
+
+
+//------------------------------------------
 // printParams()
 //------------------------------------------
 void printParams(pList* p)
@@ -51,14 +98,12 @@ void printParams(pList* p)
     struct pStruct *s;
     int i = 0;
 
-    fprintf(stdout, "#==============================================================\n");
     for (s = jsparams; s != NULL; s = s->hh.next)
     {
         fprintf(stdout, "    id %4d: key: \"%s\", val: \"%s\"\n", s->id, s->key, s->val);
     }
-    fprintf(stdout, "#==============================================================\n\n");
 }
-    
+
 //------------------------------------------
 // readConfig()
 //------------------------------------------
@@ -298,8 +343,8 @@ int saveConfigToFile(pList *p, char *cfgFile)
     strcat(jsonstr, js);
     sprintf(js, "\n      \"i2c_fd\"            :   %u,", p->i2c_fd);
     strcat(jsonstr, js);
-    sprintf(js, "\n      \"modeOutputFlag\"    :   %u,", p->modeOutputFlag);
-    strcat(jsonstr, js);
+//    sprintf(js, "\n      \"modeOutputFlag\"    :   %u,", p->modeOutputFlag);
+//    strcat(jsonstr, js);
     sprintf(js, "\n      \"baseFilePath\"      :   \"%s\",", p->baseFilePath);
     strcat(jsonstr, js);
     sprintf(js, "\n      \"outputFilePath\"    :   \"%s\",", p->outputFilePath);

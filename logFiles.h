@@ -18,7 +18,7 @@ int openLogs(pList *p);
 void closeLogs(pList *p);
 int openUIPipes(pList *p);
 void closeUIPipes(pList *p);
-void buildOutputfileName(pList *p);
+void buildOutputFileName(pList *p);
 int buildOutputFilePath(pList *p);
 int setOutputFileRoot(pList *p, char *outPath);
 

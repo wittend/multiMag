@@ -156,14 +156,14 @@ int openLogs(pList *p)
 
     if(p->outfp == 0)
     {
-        buildOutputFilePath(p);
+        buildOutputFileName(p);
         if((p->outfp = fopen(p->outputFilePath, "a+"))!= NULL)
         {
-            printf("\nLog File: %s\n", p->outputFilePath);
+            printf("Log File: %s\n", p->outputFilePath);
         }
         else
         {
-            perror("\nLog File: ");
+            perror("Log File: ");
         }
         rv = 0;
     }
@@ -181,46 +181,20 @@ void closeLogs(pList *p)
     }
 }
 
-////------------------------------------------
-//// setupDefaults()
-////------------------------------------------
-//int setupDefaults(pList *p)
-//{
-//    int rv = 0;
-//
-//    if(p != NULL)
-//    {
-//        p->numThreads       =   2;
-//        p->threadOffsetUS   =   150;
-//        p->i2cBusNumber     =   1;
-//        p->i2c_fd           =   0;
-//        p->modeOutputFlag   =   0;
-//        p->baseFilePath     =   "/PSWS";
-//        p->outputFilePath   =   "/Srawdata";
-//        p->outputFileName   =   "";
-//        p->pipeInPath       =   "/tmp/multiMag_pipeout.fifo";
-//        p->pipeOutPath      =   "/tmp/multiMag_pipein.fifo";
-//        p->rollOverTime     =   "00:00";
-//        p->gridSqr          =   "EM38uw";
-//        p->sitePrefix       =   "N0000023";
-//        p->city             =   "Columbia";
-//        p->state            =   "Missouri";
-//        p->country          =   "USA";
-//        p->postalcode       =   "65201";
-//        p->lattitude        =   "38.92241";
-//        p->longitude        =   "-92.29776";
-//        p->elevation        =   "228.90m";
-//        p->system           =   "";
-//    }
-//};
-//
 //------------------------------------------
-//  buildOutputfileName()
+//  buildOutputFileName()
 //------------------------------------------
-void buildOutputfileName(pList *p)
+void buildOutputFileName(pList *p)
 {
     struct tm *utcTime = getUTC();
     char utcStr[UTCBUFLEN] = "";
+
+    char *penv = getenv("HOME");
+    strncpy(baseFilePath, "", 1);
+    strncpy(baseFilePath, penv, MAXPATHBUFLEN - 1);
+    strncat(baseFilePath, baseFileFolder, FOLDERNAMELEN - 1);
+//    p->baseFilePath = baseFilePath;
+//fprintf(stdout, "buildOutputFilePath(): [%s]\n", p->baseFilePath);
 
     strftime(utcStr, UTCBUFLEN, "%Y-%m-%dT%H%M%S", utcTime);
     strncpy((char *)outFileName, utcStr, UTCBUFLEN);
@@ -228,52 +202,57 @@ void buildOutputfileName(pList *p)
     strncat((char *)outFileName, sitePrefix, SITEPREFIXLEN);
     strncat((char *)outFileName, "_N_", 4);
     strncat((char *)outFileName, p->gridSqr, 7);
-    strncat((char *)outFileName, "_MGT.csv", 9);
-    p->outputFileName = outFileName;
+    strncat((char *)outFileName, "_MGT.log", 9);
 //  printf("buildOutputfileName(): [%s][%s]\n", p->baseFilePath, p->outputFileName);
-
+//printf("In: %s\n", "buildOutputFileName()");
     strncat((char *)baseFilePath, "/", 2);
     strncat((char *)baseFilePath, outFileName, MAXPATHBUFLEN);
 
-//printf("buildOutputfileName(): [%s]\n", p->baseFilePath);
+    p->outputFileName = outFileName;
+
+    //strncat(baseFilePath, outFileName, MAXPATHBUFLEN);
+    p->outputFilePath = baseFilePath;
+printf("p->outputFilePath: %s\n", p->outputFilePath);
+//
+//fprintf(stdout,"buildOutputFileName(): [%s]\n", p->outputFileName);
 //fflush(stdout);
 }
 
-//------------------------------------------
-//  buildOutputFilePath()
-//------------------------------------------
-int buildOutputFilePath(pList *p)
-{
-    int rv = 0;
-    char *penv = getenv("HOME");
-    strncpy(baseFilePath, "", 1);
-    strncpy(baseFilePath, penv, MAXPATHBUFLEN - 1);
-    strncat(baseFilePath, baseFileFolder, FOLDERNAMELEN - 1);
-    p->baseFilePath = baseFilePath;
-//printf("buildOutputFilePath(): [%s]\n", p->baseFilePath);
+////------------------------------------------
+////  buildOutputFilePath()
+////------------------------------------------
+//int buildOutputFilePath(pList *p)
+//{
+//    int rv = 0;
+//    char *penv = getenv("HOME");
+//    strncpy(baseFilePath, "", 1);
+//    strncpy(baseFilePath, penv, MAXPATHBUFLEN - 1);
+//    strncat(baseFilePath, baseFileFolder, FOLDERNAMELEN - 1);
+//    p->baseFilePath = baseFilePath;
+//fprintf(stdout, "buildOutputFilePath(): [%s]\n", p->baseFilePath);
 //fflush(stdout);
-    return rv;
-}
-
-//------------------------------------------
-// setOutputFileRoot()
-//------------------------------------------
-int setOutputFileRoot(pList *p, char *outPath)
-{
-    int rv = 0;
-    
-    if(strlen(outPath) > MAXPATHBUFLEN - 1)
-    {
-        fprintf(stderr, "\nOutput path length exceeds maximum allowed length (%i)\n", MAXPATHBUFLEN - 1);
-        rv =  1;
-    }
-    else
-    {
-        strncpy(outFilePath, outPath, strlen(outPath));
-        p->outputFilePath = outFilePath;
-    }
-    return rv;
-}
+//    return rv;
+//}
+//
+////------------------------------------------
+//// setOutputFileRoot()
+////------------------------------------------
+//int setOutputFileRoot(pList *p, char *outPath)
+//{
+//    int rv = 0;
+//
+//    if(strlen(outPath) > MAXPATHBUFLEN - 1)
+//    {
+//        fprintf(stderr, "\nOutput path length exceeds maximum allowed length (%i)\n", MAXPATHBUFLEN - 1);
+//        rv =  1;
+//    }
+//    else
+//    {
+//        strncpy(outFilePath, outPath, strlen(outPath));
+//        p->outputFilePath = outFilePath;
+//    }
+//    return rv;
+//}
 
 //------------------------------------------
 // openUIPipes()

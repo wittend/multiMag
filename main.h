@@ -72,6 +72,12 @@ typedef struct tag_pList
     int remoteTempAddr;
     int magRevId;
 
+    // flags to be considered
+    int modeOutputFlag;         // ?
+    int doBistMask;             // ?
+    int tsMilliseconds;         // ?
+    int showTotal;              // ?
+
     // multiMag from here on...
     int printParamFlg;
     int numThreads;
@@ -84,14 +90,9 @@ typedef struct tag_pList
     int  fdPipeIn;
     int  fdPipeOut;
 
-    int modeOutputFlag;         // ?
-
-    int doBistMask;             // ?
     int outDelay;
     int showParameters;
     int singleRead;
-    int tsMilliseconds;         // ?
-    int showTotal;              // ?
     int logOutput;
     int useOutputPipe;
     int TMRCRate;

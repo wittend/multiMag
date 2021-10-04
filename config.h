@@ -20,6 +20,7 @@
 #define JSONBUFTOKENCOUNT   1024
 
 void printParams();
+void showSettings(pList *p);
 int readConfigFromFile(pList *p, char *cfgFile);
 int saveConfigToFile(pList *p, char *cfgFile);
 int readConfig(pList *p);

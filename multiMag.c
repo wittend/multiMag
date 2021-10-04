@@ -211,8 +211,6 @@ void *i2cReaderThread(void *thread_id)
     pthread_exit(NULL);
 }
 
-
-
 //------------------------------------------
 // main()
 // 
@@ -233,28 +231,34 @@ int main(int argc, char** argv)
     setupDefaults(&p);
     // Get cunfiguration file overrides of runtime parameters .
     readConfig(&p);
-    // readConfigFromFile(&p, "./config/config.json");
 
     // Get command line overrides of runtime parameters .
     getCommandLine(argc, argv, &p);
-    buildOutputFilePath(&p);
-    buildOutputfileName(&p);
+    // buildOutputFileName(&p);
+    // buildOutputFileName(&p);
 
-//    openLogs(&p);
+    // Open files for logging.
+    openLogs(&p);
+    // Open pipes for realtime presentation.
     openUIPipes(&p);
-    switch(p.modeOutputFlag)
-    {
-        case 0:
-            break;
-        default:
-            break;
-    }
+
+//  What was this intended to do?
+//    switch(p.modeOutputFlag)
+//    {
+//        case 0:
+//            break;
+//        default:
+//            break;
+//    }
+//
 
     // Display running parameters.
     if(p.printParamFlg)
     {
+        fprintf(stdout, "#==============================================================\n\n");
         printParams(&p);
         showSettings(&p);
+        fprintf(stdout, "#==============================================================\n\n");
     }
 
     // Create Threads.
@@ -303,7 +307,6 @@ int main(int argc, char** argv)
 #if( USE_SEMAPHORE )
 
     // Destroy Semaphore
-
     idd = p.numThreads;
     while(idd)
     {
