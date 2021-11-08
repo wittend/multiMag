@@ -208,6 +208,35 @@ void buildOutputFileName(pList *p)
     p->outputFilePath = baseFilePath;
 }
 
+//------------------------------------------
+//  buildGrapeOutputFileName()
+//------------------------------------------
+void buildGrapeOutputFileName(pList *p)
+{
+    struct tm *utcTime = getUTC();
+    char utcStr[UTCBUFLEN] = "";
+
+    char *penv = getenv("HOME");
+    strncpy(baseFilePath, "", 1);
+    strncpy(baseFilePath, penv, MAXPATHBUFLEN - 1);
+    strncat(baseFilePath, baseFileFolder, FOLDERNAMELEN - 1);
+
+    strftime(utcStr, UTCBUFLEN, "%Y-%m-%dT%H%M%S", utcTime);
+    strncpy((char *)outFileName, utcStr, UTCBUFLEN);
+    strncat((char *)outFileName, "Z_", 3);
+    strncat((char *)outFileName, p->sitePrefix, SITEPREFIXLEN);
+    strncat((char *)outFileName, "_N_", 4);
+    strncat((char *)outFileName, p->gridSqr, 7);
+    strncat((char *)outFileName, "_MGT.log", 9);
+
+    strncat((char *)baseFilePath, "/", 2);
+    strncat((char *)baseFilePath, outFileName, MAXPATHBUFLEN);
+
+    p->outputFileName = outFileName;
+
+    p->outputFilePath = baseFilePath;
+}
+
 ////------------------------------------------
 ////  buildOutputFilePath()
 ////------------------------------------------

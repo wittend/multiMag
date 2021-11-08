@@ -2,7 +2,8 @@
 // config.c
 // 
 //  JSON configuration routines for multiMag magnetometer support.
-// Data:
+//
+// Date:        2021-06-01
 // Author:      David M. Witten II, KD0EAG
 // License:     GPL 3.0
 //=========================================================================
@@ -52,11 +53,7 @@ void showSettings(pList *p)
     snprintf(pathStr, sizeof(pathStr), "/dev/i2c-%i", p->i2cBusNumber);
 
     fprintf(stdout, "\n  Working Parameters:\n");
-    fprintf(stdout, "  -------------------\n");
-//    if(!p->magRevId)
-//    {
-//        getMagRev(p);
-//    }
+    fprintf(stdout, "  -------------------  \n");
     fprintf(stdout, "   Software Version                            %s\n",          p->Version);
     fprintf(stdout, "   Magnetometer revision ID detected:          %i (dec)\n",    p->magRevId);
     fprintf(stdout, "   Log output:                                 %s\n",          p->logOutput ? "TRUE" : "FALSE");
@@ -84,7 +81,6 @@ void showSettings(pList *p)
     fprintf(stdout, "   Magnetometer address:                       %02X {hex)\n",  p->magnetometerAddr);
     fprintf(stdout, "   Show parameters:                            %s\n",          p->showParameters   ? "TRUE" : "FALSE");
     fprintf(stdout, "   Return single magnetometer reading:         %s\n",          p->singleRead       ? "TRUE" : "FALSE");
-//    fprintf(stdout, "   Magnetometer configuation:                  %s\n",          (p->boardMode == LOCAL) ? "Local standalone" : "Extended with remote");
     fprintf(stdout, "   Timestamp format:                           %s\n",          p->tsMilliseconds   ? "RAW"  : "UTCSTRING");
     fprintf(stdout, "   Show total field:                           %s\n",          p->showTotal        ? "TRUE" : "FALSE");
     fprintf(stdout, "\n");
@@ -238,6 +234,62 @@ int readConfigFromFile(pList *p, char *cfgFile)
 }
 
 //------------------------------------------
+// saveConfigToFile()
+//------------------------------------------
+int saveConfigToFile(pList *p, char *cfgFile)
+{
+    int rv = 0;
+    FILE *fd = NULL;
+    char js[256] = "";
+    char jsonstr[JSONBUFLEN] = "";
+
+    sprintf(js, "[\n    {");
+    strcat(jsonstr, js);
+
+    sprintf(js, "\n      \"numThreads\"        :   %u,", p->numThreads);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"threadOffsetUS\"    :   %u,", p->threadOffsetUS);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"i2cBusNumber\"      :   %u,", p->i2cBusNumber);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"i2c_fd\"            :   %u,", p->i2c_fd);
+    strcat(jsonstr, js);
+//    sprintf(js, "\n      \"modeOutputFlag\"    :   %u,", p->modeOutputFlag);
+//    strcat(jsonstr, js);
+    sprintf(js, "\n      \"baseFilePath\"      :   \"%s\",", p->baseFilePath);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"outputFilePath\"    :   \"%s\",", p->outputFilePath);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"outputFileName\"    :   \"%s\",", p->outputFileName);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"gridSqr\"           :   \"%s\",", p->gridSqr);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"sitePrefix\"        :   \"%s\",", p->sitePrefix);
+    strcat(jsonstr, js);
+
+    sprintf(js, "\n    }\n]\n");
+    strcat(jsonstr, js);
+
+#if _DEBUG
+    fprintf(stdout, "%s", jsonstr);
+#endif
+
+    if((fd = fopen(cfgFile, "w")) != NULL)
+    {
+        if(fwrite(jsonstr, strlen(jsonstr), 1, fd))
+        {
+            fprintf(stdout, "\nSaved config to file: %s\n\n", cfgFile);
+        }
+        else
+        {
+            perror("writing config file");
+        }
+        fclose(fd);
+    }
+    return rv;
+}
+
+//------------------------------------------
 // addParam()
 //------------------------------------------
 void addParam(int id, char *key, char *val)
@@ -323,61 +375,5 @@ void hashDeleteAll()
         HASH_DEL(jsparams, current_param);      // delete; users advances to next
         free(current_param);                    // optional- if you want to free
     }
-}
-
-//------------------------------------------
-// saveConfigToFile()
-//------------------------------------------
-int saveConfigToFile(pList *p, char *cfgFile)
-{
-    int rv = 0;
-    FILE *fd = NULL;
-    char js[256] = "";
-    char jsonstr[JSONBUFLEN] = "";
-    
-    sprintf(js, "[\n    {");
-    strcat(jsonstr, js);
- 
-    sprintf(js, "\n      \"numThreads\"        :   %u,", p->numThreads);
-    strcat(jsonstr, js);
-    sprintf(js, "\n      \"threadOffsetUS\"    :   %u,", p->threadOffsetUS);
-    strcat(jsonstr, js);
-    sprintf(js, "\n      \"i2cBusNumber\"      :   %u,", p->i2cBusNumber);
-    strcat(jsonstr, js);
-    sprintf(js, "\n      \"i2c_fd\"            :   %u,", p->i2c_fd);
-    strcat(jsonstr, js);
-//    sprintf(js, "\n      \"modeOutputFlag\"    :   %u,", p->modeOutputFlag);
-//    strcat(jsonstr, js);
-    sprintf(js, "\n      \"baseFilePath\"      :   \"%s\",", p->baseFilePath);
-    strcat(jsonstr, js);
-    sprintf(js, "\n      \"outputFilePath\"    :   \"%s\",", p->outputFilePath);
-    strcat(jsonstr, js);
-    sprintf(js, "\n      \"outputFileName\"    :   \"%s\",", p->outputFileName);
-    strcat(jsonstr, js);
-    sprintf(js, "\n      \"gridSqr\"           :   \"%s\",", p->gridSqr);
-    strcat(jsonstr, js);
-    sprintf(js, "\n      \"sitePrefix\"        :   \"%s\",", p->sitePrefix);
-    strcat(jsonstr, js);
-   
-    sprintf(js, "\n    }\n]\n");
-    strcat(jsonstr, js);
-
-#if _DEBUG
-    fprintf(stdout, "%s", jsonstr);
-#endif
-
-    if((fd = fopen(cfgFile, "w")) != NULL)
-    {
-        if(fwrite(jsonstr, strlen(jsonstr), 1, fd))
-        {
-            fprintf(stdout, "\nSaved config to file: %s\n\n", cfgFile);
-        }
-        else
-        {
-            perror("writing config file");
-        }
-        fclose(fd);
-    }
-    return rv;
 }
 
