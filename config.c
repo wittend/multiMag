@@ -66,8 +66,11 @@ void showSettings(pList *p)
     fprintf(stdout, "   Input file path:                            %s\n",          p->pipeInPath);
     fprintf(stdout, "   Output file path:                           %s\n",          p->pipeOutPath);
 #endif
+    fprintf(stdout, "   Use GNSS PPS:                               %s\n",          p->usePPS ? "TRUE" : "FALSE");
     fprintf(stdout, "   I2C bus number as integer:                  %i (dec)\n",    p->i2cBusNumber);
     fprintf(stdout, "   I2C bus path as string:                     %s\n",          pathStr);
+    fprintf(stdout, "   Use I2C multiplexor:                        %s\n",          p->useI2CMUX ? "TRUE" : "FALSE");
+    fprintf(stdout, "   I2C bus path as string:                     %02X (hex)\n",  p->i2cMUXAddr);
     fprintf(stdout, "   Local temperature address:                  %02X (hex)\n",  p->localTempAddr);
     fprintf(stdout, "   Remote temperature address:                 %02X (hex)\n",  p->remoteTempAddr);
     fprintf(stdout, "   Magnetometer address:                       %02X (hex)\n",  p->magnetometerAddr);
@@ -84,6 +87,18 @@ void showSettings(pList *p)
     fprintf(stdout, "   Return single magnetometer reading:         %s\n",          p->singleRead       ? "TRUE" : "FALSE");
     fprintf(stdout, "   Timestamp format:                           %s\n",          p->tsMilliseconds   ? "RAW"  : "UTCSTRING");
     fprintf(stdout, "   Show total field:                           %s\n",          p->showTotal        ? "TRUE" : "FALSE");
+
+    fprintf(stdout, "   City:                                       %s\n",          p->city);
+    fprintf(stdout, "   State:                                      %s\n",          p->state);
+    fprintf(stdout, "   Country:                                    %s\n",          p->country);
+    fprintf(stdout, "   Postalcode:                                 %s\n",          p->postalcode);
+    fprintf(stdout, "   GridSqr:                                    %s\n",          p->gridSqr);
+    fprintf(stdout, "   Lattitude:                                  %s\n",          p->lattitude);
+    fprintf(stdout, "   Longitude:                                  %s\n",          p->longitude);
+    fprintf(stdout, "   Elevation:                                  %s\n",          p->elevation);
+    fprintf(stdout, "   LogOutputTime:                              %s\n",          p->logOutputTime);
+    fprintf(stdout, "   System:                                     %s\n",          p->system);
+
     fprintf(stdout, "\n");
 }
 
@@ -280,6 +295,8 @@ int saveConfigToFile(pList *p, char *cfgFile)
     sprintf(js, "\n      \"tsMilliseconds\"    :   %u,", p->tsMilliseconds);
     strcat(jsonstr, js);
     sprintf(js, "\n      \"singleRead\"        :   %u,", p->singleRead);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"usePPS\"            :   %u,", p->usePPS);
     strcat(jsonstr, js);
     sprintf(js, "\n      \"showParameters\"    :   %u,", p->showParameters);
     strcat(jsonstr, js);

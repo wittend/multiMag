@@ -15,7 +15,7 @@
 #include "sensorRoutines.h"
 
 //int gflag = 1;
-// #define USE_SEMAPHORE   1
+// #define _DEBUG0         1
 // #define READ_I2C        0
 
 // Global struct for parsing JSON
@@ -122,13 +122,15 @@ int setupDefaults(pList *p)
         p->remoteTempAddr   =   0x19;
 
         p->magRevId         =   0;
-        p->doBistMask       =   0;             // ?
+        p->doBistMask       =   0;              // ?
         p->outDelay         =   0;
-//?       p->singleRead;        // Is this useful?
-        p->tsMilliseconds;                 // ?
-        p->showTotal        =   FALSE;              // ?
+        p->singleRead       =   FALSE;          // Is this useful?
+        p->tsMilliseconds   =   FALSE;          // ?
+        p->showTotal        =   FALSE;          // ?
         p->logOutput        =   FALSE;
         p->useOutputPipe    =   FALSE;
+        p->usePPS           =   FALSE;
+        p->writeWorkingCFG  =   FALSE;
         p->TMRCRate         =   0;
         p->CMMSampleRate    =   0;
         p->samplingMode     =   0;
@@ -144,19 +146,21 @@ int setupDefaults(pList *p)
         // multiMag from here on...
         p->Version          =   MULTIMAG_VERSION;
         p->printParamFlg    =   FALSE;
-        p->numThreads       =   2;
+        p->numThreads       =   1;
         p->threadCadenceUS  =   1000000;
         p->threadOffsetUS   =   150000;
         p->i2cBusNumber     =   1;
-        p->i2cMUXAddr       =   NOT_USED;
+        p->useI2CMUX        =   FALSE;
+        p->i2cMUXAddr       =   FALSE;
         p->i2c_fd           =   0;
         p->outfp            =   NULL;
         p->fdPipeIn         =   NOT_USED;
         p->fdPipeOut        =   NOT_USED;
         p->modeOutputFlag   =   0;
 
+        p->logOutputTime    =   "00:00:00";
         p->baseFilePath     =   "/PSWS/Srawdata/";
-        p->outputFilePath   =   "";         //"/Srawdata";
+        p->outputFilePath   =   "";                         //"/Srawdata";
         p->outputFileName   =   "";
         p->pipeInPath       =   "/tmp/multiMag_pipeout.fifo";
         p->pipeOutPath      =   "/tmp/multiMag_pipein.fifo";
@@ -237,17 +241,19 @@ int main(int argc, char** argv)
     // Get cunfiguration file overrides of runtime parameters .
     readConfig(&p);
 
-#if(_DEBUG0)
-    strncat(configFilePath, configFileName, MAXPATHBUFLEN);
-    saveConfigToFile(&p, configFilePath);
-#endif
-
     // Get command line overrides of runtime parameters .
     getCommandLine(argc, argv, &p);
     // Open files for logging.
     openLogs(&p);
     // Open pipes for realtime presentation.
     openUIPipes(&p);
+
+    // Write out configuration to ./config/config.json
+    if(p.writeWorkingCFG)
+    {
+        strncat(configFilePath, configFileName, MAXPATHBUFLEN);
+        saveConfigToFile(&p, configFilePath);
+    }
 
     // Display running parameters.
     if(p.printParamFlg)

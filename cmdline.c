@@ -24,10 +24,13 @@ int getCommandLine(int argc, char** argv, pList *p)
 {
     int c;
 
-    while((c = getopt(argc, argv, "?hn:P")) != -1)
+    while((c = getopt(argc, argv, "?Ghn:PW")) != -1)
     {
         switch (c)
         {
+            case 'G':
+                p->usePPS = TRUE;
+                break;
             case 'n':
                 p->numThreads = atoi(optarg);
                 if(p->numThreads > MAXTHREADS)
@@ -41,11 +44,11 @@ int getCommandLine(int argc, char** argv, pList *p)
                     break;
             case 'h':
             case '?':
-                fprintf(stdout, "\nParameters:\n\n");
-                fprintf(stdout, "   -n <count>             :  Set number of threads.          [ default 2 decimal]\n");
-                fprintf(stdout, "   -P                     :  Show configuration parameters.\n\n");
-                fprintf(stdout, "   -h or -?               :  Display this help.\n\n");
+                showHelp(p);
                 return 1;
+                break;
+            case 'W':
+                p->writeWorkingCFG = TRUE;
                 break;
             default:
                 fprintf(stdout, "\n?? getopt returned character code 0x%2X ??\n", c);
@@ -63,6 +66,20 @@ int getCommandLine(int argc, char** argv, pList *p)
     }
     return 0;
 }
+
+//------------------------------------------
+// setOutputFilePath()
+//------------------------------------------
+void showHelp(pList *p)
+{
+    fprintf(stdout, "\nParameters:\n\n");
+    fprintf(stdout, "   -G                     :  Use PPS signal.                 [ default 2 decimal]\n");
+    fprintf(stdout, "   -n <count>             :  Set number of threads.          [ default 2 decimal]\n");
+    fprintf(stdout, "   -P                     :  Show configuration parameters.\n");
+    fprintf(stdout, "   -W                     :  Write working parameters to ./config/config.json.\n");
+    fprintf(stdout, "   -h or -?               :  Display this help.\n\n");
+}
+
 
 //------------------------------------------
 // setOutputFilePath()

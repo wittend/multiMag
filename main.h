@@ -95,7 +95,6 @@ typedef struct tag_pList
     int threadCadenceUS;
     int i2cBusNumber;
     int i2c_fd;
-    int i2cMUXAddr;
     FILE *outfp;
     FILE *infp;
     int  fdPipeIn;
@@ -106,6 +105,9 @@ typedef struct tag_pList
     int singleRead;
     int logOutput;
     int useOutputPipe;
+    int usePPS;
+    int useI2CMUX;
+    int i2cMUXAddr;
     int TMRCRate;
     int CMMSampleRate;
     int samplingMode;
@@ -118,6 +120,8 @@ typedef struct tag_pList
     int x_gain;
     int y_gain;
     int z_gain;
+
+    int writeWorkingCFG;
 
     char *city;
     char *state;

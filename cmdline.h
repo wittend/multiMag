@@ -16,6 +16,7 @@
 //------------------------------------------
 // Prototypes
 //------------------------------------------
+void showHelp(pList *p);
 int setOutputFilePath(pList *p, char *outPath);
 int setLogRollOver(pList *p, char *rollTime);
 int getCommandLine(int argc, char** argv, pList *p);
