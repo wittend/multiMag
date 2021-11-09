@@ -12,10 +12,11 @@
 #include "logFiles.h"
 #include "config.h"
 #include "cmdline.h"
+#include "sensorRoutines.h"
 
 //int gflag = 1;
-#define USE_SEMAPHORE   1
-#define READ_I2C        0
+// #define USE_SEMAPHORE   1
+// #define READ_I2C        0
 
 // Global struct for parsing JSON
 struct pStruct *jsparams = NULL;
@@ -74,6 +75,8 @@ void catch_sigterm()
     _sigact.sa_sigaction = sig_term_handler;
     _sigact.sa_flags = SA_SIGINFO;
 
+//    closeI2CBus(&p);
+
     sigaction(SIGTERM, &_sigact, NULL);
 }
 
@@ -96,6 +99,8 @@ void catch_sigint()
     memset(&_sigact, 0, sizeof(_sigact));
     _sigact.sa_sigaction = sig_int_handler;
     _sigact.sa_flags = SA_SIGINFO;
+
+    //closeI2CBus(&p);
 
     sigaction(SIGINT, &_sigact, NULL);
 }
@@ -232,25 +237,17 @@ int main(int argc, char** argv)
     // Get cunfiguration file overrides of runtime parameters .
     readConfig(&p);
 
+#if(_DEBUG0)
+    strncat(configFilePath, configFileName, MAXPATHBUFLEN);
+    saveConfigToFile(&p, configFilePath);
+#endif
+
     // Get command line overrides of runtime parameters .
     getCommandLine(argc, argv, &p);
-    // buildOutputFileName(&p);
-    // buildOutputFileName(&p);
-
     // Open files for logging.
     openLogs(&p);
     // Open pipes for realtime presentation.
     openUIPipes(&p);
-
-//  What was this intended to do?
-//    switch(p.modeOutputFlag)
-//    {
-//        case 0:
-//            break;
-//        default:
-//            break;
-//    }
-//
 
     // Display running parameters.
     if(p.printParamFlg)
@@ -260,6 +257,9 @@ int main(int argc, char** argv)
         showSettings(&p);
         fprintf(stdout, "#==============================================================\n\n");
     }
+
+    // Open up I2C
+    openI2CBus(&p);
 
     // Create Threads.
     for(i = 0; i < p.numThreads; i++)
@@ -321,5 +321,6 @@ int main(int argc, char** argv)
     hashDeleteAll();
     closeLogs(&p);
     closeUIPipes(&p);
+    closeI2CBus(&p);
     return 0;
 }

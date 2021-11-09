@@ -44,9 +44,9 @@ int openI2CBus(pList *p)
 //
 // Close I2C bus
 //--------------------------------------------------------------------
-void closeI2CBus(int i2c_fd)
+void closeI2CBus(pList *p)
 {
-    close(i2c_fd);
+    close(p->i2c_fd);
 }
 
 //------------------------------------------

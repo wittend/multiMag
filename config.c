@@ -13,7 +13,7 @@
 
 #define _DEBUG 1
 
-//remembar to ditch this..
+// remembar to ditch this..
 extern char configFileName[MAXPATHBUFLEN];
 int id = 1;
 
@@ -60,6 +60,7 @@ void showSettings(pList *p)
     //fprintf(stdout, "   Log Rollover time:                          %s\n",          p->logOutputTime);
     fprintf(stdout, "   Log site prefix string:                     %s\n",          p->sitePrefix);
     fprintf(stdout, "   Output file path:                           %s\n",          p->outputFilePath);
+    fprintf(stdout, "   Number of sensor threads:                   %u\n",          p->numThreads);
 #if (USE_PIPES)
     fprintf(stdout, "   Log output to pipes:                        %s\n",          p->useOutputPipe ? "TRUE" : "FALSE");
     fprintf(stdout, "   Input file path:                            %s\n",          p->pipeInPath);
@@ -67,6 +68,9 @@ void showSettings(pList *p)
 #endif
     fprintf(stdout, "   I2C bus number as integer:                  %i (dec)\n",    p->i2cBusNumber);
     fprintf(stdout, "   I2C bus path as string:                     %s\n",          pathStr);
+    fprintf(stdout, "   Local temperature address:                  %02X (hex)\n",  p->localTempAddr);
+    fprintf(stdout, "   Remote temperature address:                 %02X (hex)\n",  p->remoteTempAddr);
+    fprintf(stdout, "   Magnetometer address:                       %02X (hex)\n",  p->magnetometerAddr);
     fprintf(stdout, "   Built in self test (BIST) value:            %02X (hex)\n",  p->doBistMask);
     fprintf(stdout, "   NOS Register value:                         %02X (hex)\n",  p->NOSRegValue);
 //    fprintf(stdout, "   Post DRDY delay:                            %i (dec)\n",    p->DRDYdelay);
@@ -76,9 +80,6 @@ void showSettings(pList *p)
     fprintf(stdout, "   Software Loop Delay (uSec):                 %2i (dec uSec)\n",    p->outDelay);
     fprintf(stdout, "   CMM sample rate:                            %2X (hex)\n",   p->CMMSampleRate);
     fprintf(stdout, "   TMRC reg value:                             %2X (hex)\n",   p->TMRCRate);
-    fprintf(stdout, "   Local temperature address:                  %02X (hex)\n",  p->localTempAddr);
-    fprintf(stdout, "   Remote temperature address:                 %02X (hex)\n",  p->remoteTempAddr);
-    fprintf(stdout, "   Magnetometer address:                       %02X {hex)\n",  p->magnetometerAddr);
     fprintf(stdout, "   Show parameters:                            %s\n",          p->showParameters   ? "TRUE" : "FALSE");
     fprintf(stdout, "   Return single magnetometer reading:         %s\n",          p->singleRead       ? "TRUE" : "FALSE");
     fprintf(stdout, "   Timestamp format:                           %s\n",          p->tsMilliseconds   ? "RAW"  : "UTCSTRING");
@@ -243,10 +244,21 @@ int saveConfigToFile(pList *p, char *cfgFile)
     char js[256] = "";
     char jsonstr[JSONBUFLEN] = "";
 
+#if _DEBUG0
+    fprintf(stdout, "Inside saveConfigToFile() : %s.\n", cfgFile);
+    fflush(stdout);
+#endif
+
     sprintf(js, "[\n    {");
     strcat(jsonstr, js);
 
+    sprintf(js, "\n      \"magRevId\"          :   %u,", p->magRevId);
+    strcat(jsonstr, js);
     sprintf(js, "\n      \"numThreads\"        :   %u,", p->numThreads);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"threadOffsetUS\"    :   %u,", p->threadOffsetUS);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"threadCadenceUS\"   :   %u,", p->threadCadenceUS);
     strcat(jsonstr, js);
     sprintf(js, "\n      \"threadOffsetUS\"    :   %u,", p->threadOffsetUS);
     strcat(jsonstr, js);
@@ -254,17 +266,77 @@ int saveConfigToFile(pList *p, char *cfgFile)
     strcat(jsonstr, js);
     sprintf(js, "\n      \"i2c_fd\"            :   %u,", p->i2c_fd);
     strcat(jsonstr, js);
-//    sprintf(js, "\n      \"modeOutputFlag\"    :   %u,", p->modeOutputFlag);
-//    strcat(jsonstr, js);
+    sprintf(js, "\n      \"localTempAddr\"     :   %u,", p->localTempAddr);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"remoteTempAddr\"    :   %u,", p->remoteTempAddr);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"magnetometerAddr\"  :   %u,", p->magnetometerAddr);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"i2cMUXAddr\"        :   %u,", p->i2cMUXAddr);
+    strcat(jsonstr, js);
+
+    sprintf(js, "\n      \"showTotal\"         :   %u,", p->showTotal);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"tsMilliseconds\"    :   %u,", p->tsMilliseconds);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"singleRead\"        :   %u,", p->singleRead);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"showParameters\"    :   %u,", p->showParameters);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"TMRCRate\"          :   %u,", p->TMRCRate);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"CMMSampleRate\"     :   %u,", p->CMMSampleRate);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"samplingMode\"      :   %u,", p->samplingMode);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"outDelay\"          :   %u,", p->outDelay);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"NOSRegValue\"       :   %u,", p->NOSRegValue);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"doBistMask\"        :   %u,", p->doBistMask);
+    strcat(jsonstr, js);
+
+//    fprintf(stdout, "   Cycle counts by vector:                     X: %3i (dec), Y: %3i (dec), Z: %3i (dec)\n", p->cc_x, p->cc_y, p->cc_z);
+//    fprintf(stdout, "   Gain by vector:                             X: %3i (dec), Y: %3i (dec), Z: %3i (dec)\n", p->x_gain, p->y_gain, p->z_gain);
+
     sprintf(js, "\n      \"baseFilePath\"      :   \"%s\",", p->baseFilePath);
     strcat(jsonstr, js);
     sprintf(js, "\n      \"outputFilePath\"    :   \"%s\",", p->outputFilePath);
     strcat(jsonstr, js);
     sprintf(js, "\n      \"outputFileName\"    :   \"%s\",", p->outputFileName);
     strcat(jsonstr, js);
+    sprintf(js, "\n      \"rollOverTime\"      :   \"%s\",", p->rollOverTime);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"pipeInPath\"        :   \"%s\",", p->pipeInPath);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"pipeOutPath\"       :   \"%s\",", p->pipeOutPath);
+    strcat(jsonstr, js);
+
+    sprintf(js, "\n      \"city\"              :   \"%s\",", p->city);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"state\"             :   \"%s\",", p->state);
+    strcat(jsonstr, js);
+
+    sprintf(js, "\n      \"country\"           :   \"%s\",", p->country);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"postalcode\"        :   \"%s\",", p->postalcode);
+    strcat(jsonstr, js);
+
     sprintf(js, "\n      \"gridSqr\"           :   \"%s\",", p->gridSqr);
     strcat(jsonstr, js);
+    sprintf(js, "\n      \"lattitude\"         :   \"%s\",", p->lattitude);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"longitude\"         :   \"%s\",", p->longitude);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"elevation\"         :   \"%s\",", p->elevation);
+    strcat(jsonstr, js);
     sprintf(js, "\n      \"sitePrefix\"        :   \"%s\",", p->sitePrefix);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"logOutputTime\"     :   \"%s\",", p->logOutputTime);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"Version\"           :   \"%s\",", p->Version);
+    strcat(jsonstr, js);
+    sprintf(js, "\n      \"system\"            :   \"%s\",", p->system);
     strcat(jsonstr, js);
 
     sprintf(js, "\n    }\n]\n");
@@ -274,6 +346,10 @@ int saveConfigToFile(pList *p, char *cfgFile)
     fprintf(stdout, "%s", jsonstr);
 #endif
 
+#if _DEBUG0
+    fprintf(stdout, "Before write in saveConfigToFile() : %s.\n", cfgFile);
+    fflush(stdout);
+#endif
     if((fd = fopen(cfgFile, "w")) != NULL)
     {
         if(fwrite(jsonstr, strlen(jsonstr), 1, fd))
@@ -286,6 +362,10 @@ int saveConfigToFile(pList *p, char *cfgFile)
         }
         fclose(fd);
     }
+#if _DEBUG0
+    fprintf(stdout, "After write in saveConfigToFile() : %s.\n", cfgFile);
+    fflush(stdout);
+#endif
     return rv;
 }
 

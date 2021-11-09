@@ -14,7 +14,7 @@
 
 #include "main.h"
 
-#define JSONBUFLEN          1025
+#define JSONBUFLEN          4096
 #define JSONBUFTOKENCOUNT   1024
 
 void printParams();

@@ -22,7 +22,7 @@
 // Prototypes
 //------------------------------------------
 int openI2CBus(pList *p);
-void closeI2CBus(int i2c_fd);
+void closeI2CBus(pList *p);
 int setNOSReg(pList *p);
 unsigned short setMagSampleRate(pList *p, unsigned short sample_rate);
 unsigned short getMagSampleRate(pList *p);;

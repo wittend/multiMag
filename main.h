@@ -36,8 +36,16 @@
 //#include "sensorRoutines.h"
 #include "uthash/uthash.h"
 
+//------------------------------------------
+// Options while building & testing
+//------------------------------------------
+#define USE_SEMAPHORE       1
+#define READ_I2C            0
 #define USE_PIPES           TRUE
 
+//------------------------------------------
+// Important constants
+//------------------------------------------
 #define MAXKEYLEN           64
 #define MAXVALLEN           64
 
